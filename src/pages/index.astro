@@ -3,70 +3,62 @@
 
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width" />
   <title>V. NAGIA</title>
 </head>
 
 <body>
 
-  <main>
-    <h1>V. NAGIA</h1>
+<main>
+  <h1>V. NAGIA</h1>
 
-    <p>Archive of imagination.</p>
+  <p>
+    Archive of imagination.
+  </p>
 
-    <nav>
-      <a href="#">小说</a>
-      <a href="#">摄影</a>
-      <a href="#">音乐</a>
-      <a href="#">电影</a>
-      <a href="#">游戏</a>
-    </nav>
-
-  </main>
+  <nav>
+    <a href="/novel">小说</a>
+    <a href="/photo">摄影</a>
+    <a href="/music">音乐</a>
+    <a href="/film">电影</a>
+    <a href="/game">游戏</a>
+  </nav>
+</main>
 
 </body>
-</html>
 
 <style>
-  body {
-    margin: 0;
-    background: #111;
-    color: white;
-    font-family: sans-serif;
-  }
+body {
+  margin:0;
+  background:#111;
+  color:white;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Arial;
+}
 
-  main {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+main {
+  text-align:center;
+}
 
-  h1 {
-    font-size: 80px;
-    letter-spacing: 8px;
-  }
+h1 {
+  font-size:80px;
+  letter-spacing:15px;
+}
 
-  p {
-    font-size: 24px;
-    opacity: 0.7;
-  }
+p {
+  color:#aaa;
+  font-size:24px;
+}
 
-  nav {
-    margin-top: 50px;
-    display: flex;
-    gap: 30px;
-  }
+a {
+  color:white;
+  margin:20px;
+  text-decoration:none;
+}
 
-  a {
-    color: white;
-    text-decoration: none;
-  }
-
-  a:hover {
-    opacity: 0.5;
-  }
-
+a:hover {
+  opacity:0.5;
+}
 </style>
