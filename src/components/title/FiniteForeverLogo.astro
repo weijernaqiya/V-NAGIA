@@ -1,0 +1,58 @@
+<div class="finite-forever-logo" aria-labelledby="finite-forever-title">
+  <h1 id="finite-forever-title" class="visually-hidden">FINITE FOREVER</h1>
+
+  <svg
+    class="finite-forever-logo__svg"
+    viewBox="0 0 780 300"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <clipPath id="finite-trace-clip">
+        <rect class="logo__clip logo__clip--finite" x="24" y="22" width="536" height="118" />
+      </clipPath>
+      <clipPath id="forever-trace-clip">
+        <rect class="logo__clip logo__clip--forever" x="132" y="132" width="620" height="126" />
+      </clipPath>
+    </defs>
+
+    <!-- 最初出现的线迹只建立方向感，不立即暴露完整字形。 -->
+    <g class="logo__signals">
+      <path
+        class="logo__signal logo__signal--one"
+        pathLength="1"
+        d="M20 116 C126 111 199 98 304 89 C405 80 487 86 583 70"
+      />
+      <path
+        class="logo__signal logo__signal--two"
+        pathLength="1"
+        d="M119 238 C248 233 355 212 481 202 C579 194 655 195 758 176"
+      />
+      <path
+        class="logo__signal logo__signal--three"
+        pathLength="1"
+        d="M116 48 C140 94 157 151 150 260"
+      />
+    </g>
+
+    <!--
+      每个单词由轮廓、凝结雾迹和最终实体三层组成。
+      它们共享同一字形位置，因此以后换正式 Logo 时可整体替换此组件。
+    -->
+    <g class="logo__word logo__word--finite">
+      <g clip-path="url(#finite-trace-clip)">
+        <text class="logo__trace logo__trace--finite" x="32" y="118" textLength="510" lengthAdjust="spacing">FINITE</text>
+      </g>
+      <text class="logo__mist logo__mist--finite" x="32" y="118" textLength="510" lengthAdjust="spacing">FINITE</text>
+      <text class="logo__fill logo__fill--finite" x="32" y="118" textLength="510" lengthAdjust="spacing">FINITE</text>
+    </g>
+
+    <g class="logo__word logo__word--forever">
+      <g clip-path="url(#forever-trace-clip)">
+        <text class="logo__trace logo__trace--forever" x="142" y="232" textLength="596" lengthAdjust="spacing">FOREVER</text>
+      </g>
+      <text class="logo__mist logo__mist--forever" x="142" y="232" textLength="596" lengthAdjust="spacing">FOREVER</text>
+      <text class="logo__fill logo__fill--forever" x="142" y="232" textLength="596" lengthAdjust="spacing">FOREVER</text>
+    </g>
+  </svg>
+</div>

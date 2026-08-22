@@ -1,0 +1,79 @@
+<!--
+  标题艺术图占位区域。
+
+  未来这里会替换为用户自己设计的 FINITE FOREVER 正式标题插画。
+  当前 SVG 只测试标题与大型图形的构图关系，不与页面编排强绑定；
+  可以直接把本组件内容换成 SVG、PNG、WebP 或动画 SVG。
+-->
+<div class="title-artwork" aria-hidden="true">
+  <svg
+    class="title-artwork__svg"
+    viewBox="0 0 900 900"
+    focusable="false"
+  >
+    <defs>
+      <linearGradient id="artwork-line" x1="105" y1="760" x2="784" y2="112">
+        <stop offset="0" stop-color="#afc7d6" stop-opacity="0" />
+        <stop offset="0.42" stop-color="#8eacbf" stop-opacity="0.7" />
+        <stop offset="1" stop-color="#c7d8e2" stop-opacity="0.06" />
+      </linearGradient>
+      <linearGradient id="artwork-shard" x1="270" y1="680" x2="650" y2="210">
+        <stop offset="0" stop-color="#dceaf1" stop-opacity="0.03" />
+        <stop offset="0.55" stop-color="#9db8c9" stop-opacity="0.16" />
+        <stop offset="1" stop-color="#f5fafc" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    <g class="artwork__primary-lines" fill="none" stroke="url(#artwork-line)">
+      <path
+        class="artwork__line artwork__line--primary"
+        pathLength="1"
+        d="M116 761 C226 600 179 353 379 189 C490 98 658 83 782 145"
+      />
+      <path
+        class="artwork__line artwork__line--primary artwork__line--offset-one"
+        pathLength="1"
+        d="M198 809 C369 684 370 475 478 300 C558 170 691 126 823 183"
+      />
+      <path
+        class="artwork__line artwork__line--primary artwork__line--offset-two"
+        pathLength="1"
+        d="M91 646 C256 696 404 640 523 518 C650 389 704 254 688 85"
+      />
+    </g>
+
+    <g class="artwork__secondary-lines" fill="none" stroke="url(#artwork-line)">
+      <path
+        class="artwork__line artwork__line--secondary"
+        pathLength="1"
+        d="M147 501 C267 439 383 433 509 477 C623 516 726 498 824 421"
+      />
+      <path
+        class="artwork__line artwork__line--secondary artwork__line--offset-one"
+        pathLength="1"
+        d="M267 755 C365 580 512 500 734 499"
+      />
+      <path
+        class="artwork__line artwork__line--secondary artwork__line--offset-two"
+        pathLength="1"
+        d="M435 788 C461 619 553 458 752 324"
+      />
+    </g>
+
+    <g class="artwork__shards" fill="url(#artwork-shard)">
+      <path class="artwork__shard artwork__shard--one" d="M430 206 L512 330 L469 504 L389 347 Z" />
+      <path class="artwork__shard artwork__shard--two" d="M514 331 L630 268 L567 482 L470 504 Z" />
+      <path class="artwork__shard artwork__shard--three" d="M470 505 L566 483 L529 671 L416 600 Z" />
+      <path class="artwork__shard artwork__shard--four" d="M389 348 L470 505 L416 600 L333 458 Z" />
+      <path class="artwork__shard artwork__shard--five" d="M568 483 L674 431 L615 566 L529 671 Z" />
+    </g>
+
+    <g class="artwork__points" fill="#8faebe">
+      <circle cx="381" cy="188" r="1.8" />
+      <circle cx="690" cy="139" r="1.4" />
+      <circle cx="514" cy="330" r="2" />
+      <circle cx="267" cy="755" r="1.5" />
+      <circle cx="752" cy="324" r="1.7" />
+    </g>
+  </svg>
+</div>

@@ -1,0 +1,40 @@
+---
+import { getTitleTimelineStyle } from '../../config/titleTimeline';
+import EnterPrompt from './EnterPrompt.astro';
+import FiniteForeverLogo from './FiniteForeverLogo.astro';
+import TitleArtwork from './TitleArtwork.astro';
+import TitleAudio from './TitleAudio.astro';
+
+const timelineStyle = getTitleTimelineStyle();
+---
+
+<finite-title-screen
+  class="title-screen"
+  data-state="idle"
+  data-audio="silent"
+  style={timelineStyle}
+>
+  <main class="title-screen__surface">
+    <div class="title-stage">
+      <div class="title-composition">
+        <div class="title-composition__artwork">
+          <TitleArtwork />
+        </div>
+
+        <div class="title-composition__logo">
+          <FiniteForeverLogo />
+        </div>
+      </div>
+    </div>
+
+    <EnterPrompt />
+
+    <!-- 当前阶段保留“等待开始”的仪式感，但不连接任何站内导航。 -->
+    <p class="continue-prompt" aria-hidden="true">PRESS / ENTER</p>
+
+    <TitleAudio />
+    <p class="title-credit">V. NAGIA <span aria-hidden="true">·</span> 2026 <span aria-hidden="true">—</span></p>
+  </main>
+</finite-title-screen>
+
+<script src="../../scripts/title-screen.ts"></script>
