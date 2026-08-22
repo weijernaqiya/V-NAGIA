@@ -1,0 +1,40 @@
+---
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { getMusicPlayerStyle } from '../../config/musicPlayer';
+import { MUSIC_TRACKS } from '../../data/music';
+import PlayerCollapsed from './PlayerCollapsed.astro';
+import PlayerExpanded from './PlayerExpanded.astro';
+
+const publicDirectory = fileURLToPath(new URL('../../../public/', import.meta.url));
+const tracks = MUSIC_TRACKS.map((track) => ({
+  ...track,
+  available: Boolean(
+    track.src
+    && existsSync(join(publicDirectory, track.src.replace(/^\/+/, ''))),
+  ),
+}));
+const serializedTracks = JSON.stringify(tracks).replaceAll('<', '\\u003c');
+---
+
+<!--
+  播放器外壳由 ClientRouter 持久化；唯一的 HTMLAudioElement 由客户端模块创建，
+  不挂入会被 Astro 页面交换替换的 DOM，因此播放位置不会在路由间重置。
+-->
+<asymptote-music-player
+  class="music-player"
+  data-player-state="idle"
+  data-visible="false"
+  data-expanded="false"
+  data-queue-open="false"
+  style={getMusicPlayerStyle()}
+  transition:persist="global-music-player"
+>
+  <script is:inline type="application/json" data-player-tracks set:html={serializedTracks}></script>
+
+  <PlayerCollapsed />
+  <PlayerExpanded tracks={tracks} />
+</asymptote-music-player>
+
+<script src="../../scripts/music-player.ts"></script>

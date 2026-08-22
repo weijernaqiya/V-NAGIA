@@ -1,0 +1,32 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import MusicPlayer from '../components/player/MusicPlayer.astro';
+import '../styles/music-player.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <title>{title}</title>
+    <ClientRouter fallback="swap" />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <slot />
+    <MusicPlayer />
+  </body>
+</html>

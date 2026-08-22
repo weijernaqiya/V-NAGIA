@@ -1,0 +1,32 @@
+---
+interface QueueTrack {
+  id: string;
+  title: string;
+  artist: string;
+  available: boolean;
+}
+
+interface Props {
+  tracks: QueueTrack[];
+}
+
+const { tracks } = Astro.props;
+---
+
+<div class="music-player__queue" data-player-queue aria-label="播放队列" inert>
+  <ol>
+    {tracks.map((track) => (
+      <li>
+        <button
+          type="button"
+          data-player-queue-track={track.id}
+          aria-label={`播放 ${track.title}`}
+          disabled={!track.available}
+        >
+          <span>{track.title}</span>
+          <small>{track.available ? track.artist : 'TRACK UNAVAILABLE'}</small>
+        </button>
+      </li>
+    ))}
+  </ol>
+</div>

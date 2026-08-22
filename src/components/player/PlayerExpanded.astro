@@ -1,0 +1,71 @@
+---
+import PlayerProgress from './PlayerProgress.astro';
+import PlayerQueue from './PlayerQueue.astro';
+
+interface QueueTrack {
+  id: string;
+  title: string;
+  artist: string;
+  available: boolean;
+}
+
+interface Props {
+  tracks: QueueTrack[];
+}
+
+const { tracks } = Astro.props;
+---
+
+<section
+  class="music-player__expanded"
+  data-player-expanded
+  aria-label="全站音乐播放器"
+  aria-hidden="true"
+  inert
+>
+  <header class="music-player__header">
+    <div class="music-player__identity">
+      <img data-player-artwork alt="" hidden />
+      <div>
+        <p data-player-title>ASYMPTOTE</p>
+        <small data-player-artist>V. NAGIA</small>
+      </div>
+    </div>
+
+    <button class="music-player__close" type="button" data-player-close aria-label="收起音乐播放器">
+      <span aria-hidden="true">CLOSE</span>
+    </button>
+  </header>
+
+  <div class="music-player__transport" role="group" aria-label="播放控制">
+    <button type="button" data-player-previous aria-label="上一首">
+      <span aria-hidden="true">‹</span>
+    </button>
+    <button class="music-player__play" type="button" data-player-playback aria-label="播放">
+      <span data-player-playback-icon aria-hidden="true">▶</span>
+    </button>
+    <button type="button" data-player-next aria-label="下一首">
+      <span aria-hidden="true">›</span>
+    </button>
+    <p class="music-player__status" data-player-status aria-live="polite">READY</p>
+  </div>
+
+  <PlayerProgress />
+
+  <footer class="music-player__footer">
+    <button type="button" data-player-mute aria-label="取消静音" aria-pressed="true">
+      <span aria-hidden="true">SOUND</span>
+    </button>
+
+    <label class="music-player__volume">
+      <span class="visually-hidden">音量</span>
+      <input type="range" min="0" max="100" step="1" value="42" data-player-volume />
+    </label>
+
+    <button type="button" data-player-queue-toggle aria-label="打开播放队列" aria-expanded="false">
+      QUEUE
+    </button>
+  </footer>
+
+  <PlayerQueue tracks={tracks} />
+</section>

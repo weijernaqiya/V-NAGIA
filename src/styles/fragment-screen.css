@@ -1,0 +1,383 @@
+.fragment-screen {
+  --fragment-background-blur: 5px;
+  --fragment-focused-scale: 1.015;
+  --fragment-focus-easing: cubic-bezier(0.22, 0.68, 0.28, 1);
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  outline: none;
+  background: #f4f5f4;
+}
+
+.title-screen:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"],
+    [data-screen-state="returning"]
+  ) .fragment-screen {
+  visibility: visible;
+}
+
+.title-screen[data-screen-state="fragments"] .fragment-screen {
+  pointer-events: auto;
+}
+
+.fragment-screen__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.fragment-panel {
+  position: absolute;
+  inset: -1px;
+  display: block;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  appearance: none;
+  background: var(--fragment-color);
+  cursor: default;
+  opacity: 0;
+  transform: var(--fragment-entry-transform);
+  transform-origin: center;
+  transition:
+    opacity var(--duration-fragment-focus) cubic-bezier(0.2, 0.72, 0.28, 1),
+    transform var(--duration-fragment-focus) cubic-bezier(0.2, 0.72, 0.28, 1),
+    filter var(--duration-fragment-focus) cubic-bezier(0.22, 0.68, 0.28, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fragment-panel::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: "";
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fragment-focus) var(--fragment-focus-easing);
+}
+
+/*
+ * 每个按钮覆盖整个视口，再由 polygon 截取可点击切面。
+ * 相邻坐标保留约 0.5% 的覆盖，避免高 DPI 屏幕出现白色分割线。
+ */
+.fragment-panel--writing {
+  --fragment-delay: var(--delay-fragment-writing);
+  --fragment-entry-transform: translate3d(-3.5%, -1.5%, 0) scale(1.015);
+  clip-path: polygon(0 0, 38.5% 0, 49.5% 50.5%, 0 66.5%);
+}
+
+.fragment-panel--photography {
+  --fragment-delay: var(--delay-fragment-photography);
+  --fragment-entry-transform: translate3d(3.5%, -1.5%, 0) scale(1.015);
+  clip-path: polygon(38% 0, 100% 0, 100% 43.5%, 49% 51%);
+}
+
+.fragment-panel--music {
+  --fragment-delay: var(--delay-fragment-music);
+  --fragment-entry-transform: translate3d(-2.5%, 3%, 0) scale(1.015);
+  clip-path: polygon(0 66%, 49.5% 50%, 69.5% 100%, 0 100%);
+}
+
+.fragment-panel--archive {
+  --fragment-delay: var(--delay-fragment-archive);
+  --fragment-entry-transform: translate3d(3%, 3%, 0) scale(1.015);
+  clip-path: polygon(49% 50%, 100% 43%, 100% 100%, 69% 100%);
+}
+
+.fragment-panel__visual {
+  position: absolute;
+  inset: -2%;
+  display: block;
+  background-color: var(--fragment-color);
+  background-image: var(--fragment-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(0) saturate(1) contrast(1) brightness(1);
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: center;
+  transition:
+    filter var(--duration-fragment-focus) var(--fragment-focus-easing),
+    opacity var(--duration-fragment-focus) var(--fragment-focus-easing),
+    transform var(--duration-fragment-focus) var(--fragment-focus-easing);
+}
+
+.fragment-panel__label {
+  position: absolute;
+  z-index: 2;
+  color: #40484e;
+  font-family: Didot, "Bodoni MT", "Baskerville Display PT", Baskerville, "Times New Roman", serif;
+  font-size: clamp(0.62rem, 0.72vw, 0.78rem);
+  font-weight: 400;
+  letter-spacing: 0.48em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 5px, 0);
+  transition:
+    color var(--duration-fragment-focus) ease,
+    letter-spacing var(--duration-fragment-focus) var(--fragment-focus-easing),
+    opacity var(--duration-fragment-focus) ease,
+    transform var(--duration-fragment-focus) var(--fragment-focus-easing);
+}
+
+.fragment-panel__label--upper-left {
+  top: 23%;
+  left: 12%;
+}
+
+.fragment-panel__label--upper-right {
+  top: 19%;
+  right: 15%;
+}
+
+.fragment-panel__label--lower-left {
+  bottom: 17%;
+  left: 16%;
+}
+
+.fragment-panel__label--lower-right {
+  right: 13%;
+  bottom: 18%;
+}
+
+.title-screen:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"]
+  ) .fragment-panel {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.title-screen[data-screen-state="transitioning"] .fragment-panel {
+  transition-duration: var(--duration-fragment-panel);
+  transition-delay: var(--fragment-delay);
+}
+
+.title-screen[data-screen-state="returning"] .fragment-panel {
+  opacity: 0;
+  transform: var(--fragment-entry-transform);
+  transition-delay: 0s;
+  transition-duration: var(--duration-fragment-return);
+}
+
+/*
+ * Focus 不是 active tab：被观察的切面恢复清晰，其余切面共同退入景深。
+ * 纯色占位阶段主要依赖透明度与明暗；正式图片加入后 blur/saturation
+ * 会自然提供更明显的摄影镜头焦点变化。
+ */
+.title-screen[data-screen-state="fragments"][data-focused-fragment]
+  .fragment-panel__visual {
+  filter:
+    blur(var(--fragment-background-blur))
+    saturate(0.68)
+    contrast(0.86)
+    brightness(1.045);
+  opacity: 1;
+  transform: scale(1.008);
+}
+
+.title-screen[data-screen-state="fragments"][data-focused-fragment]
+  .fragment-panel::after {
+  opacity: 0.3;
+}
+
+.title-screen[data-screen-state="fragments"][data-focused-fragment="writing"]
+  .fragment-panel--writing,
+.title-screen[data-screen-state="fragments"][data-focused-fragment="photography"]
+  .fragment-panel--photography,
+.title-screen[data-screen-state="fragments"][data-focused-fragment="music"]
+  .fragment-panel--music,
+.title-screen[data-screen-state="fragments"][data-focused-fragment="archive"]
+  .fragment-panel--archive {
+  z-index: 2;
+  opacity: 1;
+}
+
+.title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__visual,
+.title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__visual,
+.title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__visual,
+.title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__visual {
+  filter: blur(0) saturate(1.045) contrast(1.035) brightness(1);
+  opacity: 1;
+  transform: scale(var(--fragment-focused-scale));
+}
+
+.title-screen[data-focused-fragment="writing"] .fragment-panel--writing::after,
+.title-screen[data-focused-fragment="photography"] .fragment-panel--photography::after,
+.title-screen[data-focused-fragment="music"] .fragment-panel--music::after,
+.title-screen[data-focused-fragment="archive"] .fragment-panel--archive::after {
+  opacity: 0;
+}
+
+.title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__label,
+.title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__label,
+.title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__label,
+.title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__label,
+.fragment-panel:focus-visible .fragment-panel__label {
+  color: #30393f;
+  letter-spacing: 0.56em;
+  opacity: 0.88;
+  transform: translate3d(0, 0, 0);
+}
+
+/*
+ * 标题周围的透明区域用于触屏退出 Focus。
+ * 它没有任何视觉样式，也不会成为第五个键盘导航项目。
+ */
+.fragment-screen__focus-reset {
+  position: absolute;
+  z-index: 3;
+  top: 36%;
+  left: 7%;
+  width: min(49vw, 49rem);
+  height: 27%;
+  pointer-events: none;
+}
+
+.title-screen[data-screen-state="fragments"] .fragment-screen__focus-reset {
+  pointer-events: auto;
+}
+
+.fragment-screen__back {
+  position: absolute;
+  z-index: 5;
+  top: max(1.25rem, calc(env(safe-area-inset-top) + 0.75rem));
+  right: max(1.5rem, calc(env(safe-area-inset-right) + 0.8rem));
+  min-width: 3.5rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #5d666b;
+  font-size: 0.48rem;
+  letter-spacing: 0.4em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-3px);
+  transition:
+    opacity 420ms ease,
+    color 240ms ease,
+    transform 520ms cubic-bezier(0.22, 0.68, 0.28, 1);
+}
+
+.title-screen[data-screen-state="fragments"] .fragment-screen__back {
+  opacity: 0.52;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.fragment-screen__back:hover,
+.fragment-screen__back:focus-visible {
+  color: #30383d;
+  opacity: 0.9;
+}
+
+.fragment-screen__back:focus-visible {
+  outline: 1px solid rgb(104 121 130 / 32%);
+  outline-offset: -0.35rem;
+}
+
+/*
+ * 手机端不是桌面构图的缩小版：四块切面改为纵向交错，
+ * 仍旧共同覆盖整屏，并为每一块保留足够的触控面积。
+ */
+@media (max-width: 700px) {
+  .fragment-panel--writing {
+    clip-path: polygon(0 0, 100% 0, 100% 30.5%, 0 41%);
+  }
+
+  .fragment-panel--photography {
+    clip-path: polygon(0 40.5%, 100% 30%, 100% 44%, 58% 58.5%, 0 66.5%);
+  }
+
+  .fragment-panel--music {
+    clip-path: polygon(0 66%, 58.5% 58%, 100% 43.5%, 100% 79.5%, 0 88.5%);
+  }
+
+  .fragment-panel--archive {
+    clip-path: polygon(0 88%, 100% 79%, 100% 100%, 0 100%);
+  }
+
+  .fragment-panel__label--upper-left {
+    top: 16%;
+    left: 10%;
+  }
+
+  .fragment-panel__label--upper-right {
+    top: 43%;
+    right: 10%;
+  }
+
+  .fragment-panel__label--lower-left {
+    bottom: 17%;
+    left: 11%;
+  }
+
+  .fragment-panel__label--lower-right {
+    right: 9%;
+    bottom: 8%;
+  }
+
+  .fragment-screen__focus-reset {
+    top: 47%;
+    left: 4%;
+    width: 92%;
+    height: 21%;
+  }
+
+  .fragment-screen__back {
+    top: max(0.65rem, calc(env(safe-area-inset-top) + 0.3rem));
+    right: max(0.75rem, calc(env(safe-area-inset-right) + 0.35rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fragment-panel,
+  .title-screen[data-screen-state="returning"] .fragment-panel {
+    transform: none;
+    transition-duration: var(--duration-fragment-reduced);
+    transition-delay: 0s;
+  }
+
+  .title-screen[data-screen-state="transitioning"] .fragment-panel {
+    transition-duration: var(--duration-fragment-reduced);
+    transition-delay: 0s;
+  }
+
+  .fragment-screen__back {
+    transform: none;
+    transition-duration: 180ms;
+  }
+
+  .fragment-panel__visual,
+  .fragment-panel__label,
+  .fragment-panel::after {
+    transition-duration: 180ms;
+  }
+
+  .title-screen[data-screen-state="fragments"][data-focused-fragment]
+    .fragment-panel__visual {
+    filter: saturate(0.82) contrast(0.9) brightness(1.035);
+    transform: none;
+  }
+
+  .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__visual,
+  .title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__visual,
+  .title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__visual,
+  .title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__visual {
+    filter: saturate(1.02) contrast(1.02) brightness(1);
+    transform: none;
+  }
+}

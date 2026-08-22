@@ -1,0 +1,36 @@
+---
+import { FRAGMENTS } from '../../config/fragments';
+import FragmentPanel from './FragmentPanel.astro';
+---
+
+<!--
+  四个切面使用轻微重叠的 polygon 共同覆盖整块屏幕。
+  重叠只用于消除 clip-path 抗锯齿产生的细缝，不绘制任何可见边框。
+-->
+<section
+  class="fragment-screen"
+  data-fragment-screen
+  aria-label="ASYMPTOTE 创作切面"
+  aria-hidden="true"
+  tabindex="-1"
+  inert
+>
+  <div class="fragment-screen__canvas" data-fragment-canvas>
+    {FRAGMENTS.map((fragment) => <FragmentPanel fragment={fragment} />)}
+  </div>
+
+  <!--
+    标题附近保留一块透明的“空白”交互区。
+    手机用户点击这里可退出 Focus；它不参与键盘顺序，也不显示成按钮。
+  -->
+  <div class="fragment-screen__focus-reset" data-fragment-focus-reset aria-hidden="true"></div>
+
+  <button
+    class="fragment-screen__back"
+    type="button"
+    data-fragment-back
+    aria-label="返回标题画面"
+  >
+    BACK
+  </button>
+</section>

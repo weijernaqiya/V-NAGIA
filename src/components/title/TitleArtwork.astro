@@ -1,16 +1,24 @@
+---
+import { BRAND_ASSETS } from '../../config/brand';
+
+const customArtwork = BRAND_ASSETS.titleArtwork;
+---
+
 <!--
   标题艺术图占位区域。
 
-  未来这里会替换为用户自己设计的 FINITE FOREVER 正式标题插画。
-  当前 SVG 只测试标题与大型图形的构图关系，不与页面编排强绑定；
-  可以直接把本组件内容换成 SVG、PNG、WebP 或动画 SVG。
+  正式文件路径由 src/config/brand.ts 统一配置。
+  未配置时才显示下面的低透明度 SVG，占位图与页面编排不强绑定。
 -->
 <div class="title-artwork" aria-hidden="true">
-  <svg
-    class="title-artwork__svg"
-    viewBox="0 0 900 900"
-    focusable="false"
-  >
+  {customArtwork ? (
+    <img class="title-artwork__image" src={customArtwork} alt="" />
+  ) : (
+    <svg
+      class="title-artwork__svg"
+      viewBox="0 0 900 900"
+      focusable="false"
+    >
     <defs>
       <linearGradient id="artwork-line" x1="105" y1="760" x2="784" y2="112">
         <stop offset="0" stop-color="#afc7d6" stop-opacity="0" />
@@ -75,5 +83,6 @@
       <circle cx="267" cy="755" r="1.5" />
       <circle cx="752" cy="324" r="1.7" />
     </g>
-  </svg>
+    </svg>
+  )}
 </div>

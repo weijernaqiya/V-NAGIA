@@ -1,0 +1,38 @@
+---
+import type { FragmentSection } from '../../config/fragments';
+
+interface Props {
+  fragment: FragmentSection;
+}
+
+const { fragment } = Astro.props;
+
+/*
+ * --fragment-image 已经按正式图片的 cover 模式接好。
+ * 当前 image 为 null 时只显示占位色；未来配置图片路径即可替换。
+ */
+const panelStyle = [
+  `--fragment-color: ${fragment.color}`,
+  `--fragment-image: ${fragment.image ? `url("${fragment.image}")` : 'none'}`,
+].join('; ');
+---
+
+<button
+  class:list={['fragment-panel', fragment.className]}
+  type="button"
+  style={panelStyle}
+  data-fragment-id={fragment.id}
+  data-fragment-href={fragment.href}
+  aria-label={fragment.title}
+  aria-pressed="false"
+>
+  <span class="fragment-panel__visual" aria-hidden="true"></span>
+  <span
+    class:list={[
+      'fragment-panel__label',
+      `fragment-panel__label--${fragment.labelPosition}`,
+    ]}
+  >
+    {fragment.title}
+  </span>
+</button>

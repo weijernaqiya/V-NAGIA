@@ -1,0 +1,71 @@
+<div class="asymptote-logo" aria-labelledby="asymptote-title">
+  <h1 id="asymptote-title" class="visually-hidden">ASYMPTOTE</h1>
+
+  <svg
+    class="asymptote-logo__svg"
+    viewBox="0 0 1200 260"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <clipPath id="asymptote-word-clip">
+        <rect class="logo__clip" x="18" y="0" width="748" height="178" />
+      </clipPath>
+    </defs>
+
+    <!-- 最先出现的细线预示标题下方的趋近方向，不延伸进艺术图区域。 -->
+    <line
+      class="logo__pretrace"
+      pathLength="1"
+      x1="28"
+      y1="194"
+      x2="748"
+      y2="194"
+    />
+
+    <!-- 文字继续沿用轮廓、雾迹、实体三层形成方式，改为原创高对比细长衬线语汇。 -->
+    <g class="logo__word">
+      <g clip-path="url(#asymptote-word-clip)">
+        <text
+          class="logo__trace"
+          x="28"
+          y="158"
+          textLength="720"
+          lengthAdjust="spacingAndGlyphs"
+        >ASYMPTOTE</text>
+      </g>
+      <text
+        class="logo__mist"
+        x="28"
+        y="158"
+        textLength="720"
+        lengthAdjust="spacingAndGlyphs"
+      >ASYMPTOTE</text>
+      <text
+        class="logo__fill"
+        x="28"
+        y="158"
+        textLength="720"
+        lengthAdjust="spacingAndGlyphs"
+      >ASYMPTOTE</text>
+    </g>
+
+    <!--
+      加粗的基线与箭头作为一个整体在文字下方伸展。
+      最终 scaleX 仍小于 1，与极限标记之间永远保留微小距离。
+    -->
+    <g class="logo__approach">
+      <g class="logo__approach-motion">
+        <line class="logo__approach-line" x1="28" y1="194" x2="748" y2="194" />
+        <path class="logo__approach-arrow" d="M728 181 L748 194 L728 207" />
+      </g>
+      <line class="logo__limit" x1="770" y1="181" x2="770" y2="207" />
+    </g>
+
+    <!--
+      右侧 790–1200 是未来自制标题 Logo 的独立插槽。
+      正式 SVG 到位后直接放入这个分组，不需要改动文字和箭头结构。
+    -->
+    <g class="asymptote-logo__artwork-slot" data-brand-artwork-slot></g>
+  </svg>
+</div>

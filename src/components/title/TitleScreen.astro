@@ -1,40 +1,56 @@
 ---
+import FragmentScreen from '../fragments/FragmentScreen.astro';
+import { getFragmentTimelineStyle } from '../../config/fragmentTimeline';
 import { getTitleTimelineStyle } from '../../config/titleTimeline';
-import EnterPrompt from './EnterPrompt.astro';
-import FiniteForeverLogo from './FiniteForeverLogo.astro';
+import AsymptoteLogo from './AsymptoteLogo.astro';
 import TitleArtwork from './TitleArtwork.astro';
-import TitleAudio from './TitleAudio.astro';
 
-const timelineStyle = getTitleTimelineStyle();
+const timelineStyle = [getTitleTimelineStyle(), getFragmentTimelineStyle()].join('; ');
 ---
 
-<finite-title-screen
+<asymptote-title-screen
   class="title-screen"
   data-state="idle"
-  data-audio="silent"
+  data-screen-state="title"
   style={timelineStyle}
 >
   <main class="title-screen__surface">
+    <FragmentScreen />
+
+    <!--
+      页面加载后由 title-screen.ts 自动把 data-state 切换为 started。
+      Logo、箭头与插画只读取统一 CSS 时间变量，不各自建立计时器。
+    -->
     <div class="title-stage">
       <div class="title-composition">
         <div class="title-composition__artwork">
-          <TitleArtwork />
+          <div class="title-composition__artwork-motion">
+            <TitleArtwork />
+          </div>
         </div>
 
         <div class="title-composition__logo">
-          <FiniteForeverLogo />
+          <div class="title-composition__logo-motion">
+            <AsymptoteLogo />
+          </div>
         </div>
       </div>
     </div>
 
-    <EnterPrompt />
+    <div class="continue-prompt-shell">
+      <button
+        class="continue-prompt"
+        type="button"
+        data-fragment-enter
+        aria-label="进入世界切面"
+        disabled
+      >
+        PRESS / ENTER
+      </button>
+    </div>
 
-    <!-- 当前阶段保留“等待开始”的仪式感，但不连接任何站内导航。 -->
-    <p class="continue-prompt" aria-hidden="true">PRESS / ENTER</p>
-
-    <TitleAudio />
     <p class="title-credit">V. NAGIA <span aria-hidden="true">·</span> 2026 <span aria-hidden="true">—</span></p>
   </main>
-</finite-title-screen>
+</asymptote-title-screen>
 
 <script src="../../scripts/title-screen.ts"></script>

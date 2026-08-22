@@ -1,39 +1,28 @@
 ---
 import TitleScreen from '../components/title/TitleScreen.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import '../styles/fragment-screen.css';
 import '../styles/title-screen.css';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta
-      name="description"
-      content="FINITE FOREVER — V. NAGIA 的作品标题画面。"
-    />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <title>FINITE FOREVER</title>
+<SiteLayout
+  title="ASYMPTOTE"
+  description="ASYMPTOTE — 一个持续趋近、持续生成的创作空间。"
+>
+  <!--
+    尽早标记 JavaScript 可用，避免完整静态标题在自动时间轴开始前短暂闪现。
+    若后续交互脚本没有成功接管页面，保护计时器会撤销标记，
+    让服务端渲染的完整标题重新成为可靠降级内容。
+  -->
+  <script slot="head" is:inline>
+    document.documentElement.classList.add('js');
+    window.setTimeout(() => {
+      const screen = document.querySelector('asymptote-title-screen');
+      if (!screen?.hasAttribute('data-enhanced')) {
+        document.documentElement.classList.remove('js');
+      }
+    }, 2500);
+  </script>
 
-    <!--
-      尽早标记 JavaScript 可用，避免完整标题在入口画面前短暂闪现。
-      若后续交互脚本没有成功接管页面，保护计时器会撤销标记，
-      让服务端渲染的完整标题重新成为可靠降级内容。
-    -->
-    <script is:inline>
-      document.documentElement.classList.add('js');
-      window.setTimeout(() => {
-        const screen = document.querySelector('finite-title-screen');
-        if (!screen?.hasAttribute('data-enhanced')) {
-          document.documentElement.classList.remove('js');
-        }
-      }, 2500);
-    </script>
-  </head>
-
-  <body>
-    <TitleScreen />
-  </body>
-</html>
+  <TitleScreen />
+</SiteLayout>

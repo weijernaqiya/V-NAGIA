@@ -1,17 +1,26 @@
-import { TITLE_AUDIO, TITLE_TIMELINE } from '../config/titleTimeline';
+import { FRAGMENT_TIMELINE } from '../config/fragmentTimeline';
+import { TITLE_TIMELINE } from '../config/titleTimeline';
+import { prepareTitleTrack } from './music-player-api';
 
-type EnterMode = 'sound' | 'silent';
+type ScreenState = 'title' | 'transitioning' | 'fragments' | 'returning';
+type InputModality = 'keyboard' | 'pointer';
 
 /*
  * 整个标题画面只有一个客户端控制器：
- * CSS/SVG 负责视觉形成，控制器只确定统一起点、启动音乐和维护声音状态。
+ * CSS/SVG 负责视觉形成，控制器只确定统一起点并维护页面状态。
+ * 标题音乐会被预载，但在用户操作播放器前不会尝试有声自动播放。
  * 这样后续重新对齐正式音乐时，不需要在各组件间散落 setTimeout。
  */
-class FiniteTitleScreen extends HTMLElement {
+class AsymptoteTitleScreen extends HTMLElement {
   private sequenceStarted = false;
   private sequenceStart = 0;
-  private controlsReady = false;
-  private audioFadeFrame: number | undefined;
+  private continueReady = false;
+  private screenState: ScreenState = 'title';
+  private focusedFragment: string | null = null;
+  private inputModality: InputModality = 'keyboard';
+  private lastPointerType = '';
+  private titleReadyTimer: number | undefined;
+  private screenTransitionTimer: number | undefined;
   private readonly events = new AbortController();
 
   connectedCallback() {
@@ -20,215 +29,319 @@ class FiniteTitleScreen extends HTMLElement {
     this.setAttribute('data-enhanced', '');
 
     const signal = this.events.signal;
-    this.querySelectorAll<HTMLButtonElement>('[data-enter-mode]').forEach((button) => {
-      button.addEventListener(
+    this.querySelector<HTMLButtonElement>('[data-fragment-enter]')?.addEventListener(
+      'click',
+      () => this.beginFragmentTransition(),
+      { signal },
+    );
+
+    this.querySelector<HTMLButtonElement>('[data-fragment-back]')?.addEventListener(
+      'click',
+      () => this.returnToTitle(),
+      { signal },
+    );
+
+    const fragmentPanels = this.querySelectorAll<HTMLButtonElement>('[data-fragment-id]');
+    fragmentPanels.forEach((panel) => {
+      panel.addEventListener(
+        'pointerdown',
+        (event) => {
+          this.inputModality = 'pointer';
+          this.lastPointerType = event.pointerType;
+        },
+        { signal },
+      );
+
+      panel.addEventListener(
+        'pointerenter',
+        (event) => this.handleFragmentPointerEnter(event, panel),
+        { signal },
+      );
+
+      panel.addEventListener(
+        'focusin',
+        () => {
+          if (this.inputModality === 'keyboard') this.focusFragment(panel);
+        },
+        { signal },
+      );
+
+      panel.addEventListener(
         'click',
-        () => this.beginSequence(button.dataset.enterMode === 'sound' ? 'sound' : 'silent'),
+        (event) => this.handleFragmentActivation(event, panel),
         { signal },
       );
     });
 
-    this.querySelector<HTMLButtonElement>('[data-sound-toggle]')?.addEventListener(
-      'click',
-      () => this.toggleMute(),
+    this.querySelector<HTMLElement>('[data-fragment-canvas]')?.addEventListener(
+      'pointerleave',
+      () => {
+        if (this.inputModality === 'pointer') this.clearFragmentFocus();
+      },
       { signal },
     );
 
-    this.querySelector<HTMLButtonElement>('[data-playback-toggle]')?.addEventListener(
-      'click',
-      () => this.togglePlayback(),
+    this.querySelector<HTMLElement>('[data-fragment-screen]')?.addEventListener(
+      'focusout',
+      () => {
+        queueMicrotask(() => {
+          if (this.inputModality !== 'keyboard') return;
+          const activeElement = document.activeElement;
+          if (!(activeElement instanceof Element)
+            || !activeElement.closest('[data-fragment-id]')) {
+            this.clearFragmentFocus();
+          }
+        });
+      },
+      { signal },
+    );
+
+    this.querySelector<HTMLElement>('[data-fragment-focus-reset]')?.addEventListener(
+      'pointerdown',
+      (event) => {
+        this.inputModality = 'pointer';
+        this.lastPointerType = event.pointerType;
+        this.clearFragmentFocus(true);
+      },
       { signal },
     );
 
     window.addEventListener(
       'keydown',
-      (event) => {
-        if (event.key === 'Enter' && !this.sequenceStarted) {
-          event.preventDefault();
-          this.beginSequence('sound');
-        }
-      },
+      (event) => this.handleKeydown(event),
       { signal },
     );
+
+    // 首次声音选择已经移除：组件完成接管后立即从统一时间轴开始形成 Logo。
+    this.beginSequence();
   }
 
   disconnectedCallback() {
     this.events.abort();
-    if (this.audioFadeFrame !== undefined) cancelAnimationFrame(this.audioFadeFrame);
+    if (this.titleReadyTimer !== undefined) window.clearTimeout(this.titleReadyTimer);
+    if (this.screenTransitionTimer !== undefined) {
+      window.clearTimeout(this.screenTransitionTimer);
+    }
   }
 
-  private beginSequence(mode: EnterMode) {
+  private beginSequence() {
     if (this.sequenceStarted) return;
 
     this.sequenceStarted = true;
     this.sequenceStart = performance.now();
     this.dataset.state = 'started';
 
-    const prompt = this.querySelector<HTMLElement>('[data-enter-prompt]');
-    prompt?.setAttribute('aria-hidden', 'true');
-    prompt?.querySelectorAll('button').forEach((button) => {
-      button.disabled = true;
+    /*
+     * TitleScreen 的模块可能先于全局播放器模块执行。
+     * 等播放器自定义元素注册完成后再发送预载事件，避免自动启动时丢失事件；
+     * 这段等待不阻塞视觉时间轴，也不会让缺少音频文件的页面失效。
+     */
+    void customElements.whenDefined('asymptote-music-player').then(() => {
+      if (this.isConnected) prepareTitleTrack(this.sequenceStart);
     });
-
-    if (mode === 'sound') {
-      void this.startAudio();
-    } else {
-      this.dataset.audio = 'muted';
-      this.updateAudioControls();
-    }
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealDelay = reducedMotion
       ? TITLE_TIMELINE.reducedReveal
       : TITLE_TIMELINE.screenComplete;
 
-    // 声音按钮在视觉出现后才进入键盘顺序，避免焦点落到不可见控件。
-    window.setTimeout(() => this.revealAudioControls(), revealDelay);
+    /*
+     * 第二阶段入口只在标题稳定后进入键盘顺序，
+     * 全站播放器会依据同一时间线自行显示，不再由 Title Screen 管理。
+     */
+    this.titleReadyTimer = window.setTimeout(() => {
+      this.revealContinuePrompt();
+      this.titleReadyTimer = undefined;
+    }, revealDelay);
   }
 
-  private async startAudio() {
-    const audio = this.querySelector<HTMLAudioElement>('[data-title-audio]');
-    if (!audio) return;
+  private handleKeydown(event: KeyboardEvent) {
+    const target = event.target instanceof Element ? event.target : null;
 
-    if (!audio.getAttribute('src')) {
-      const source = audio.dataset.src;
-      if (!source) {
-        this.markAudioUnavailable(audio);
-        return;
-      }
-      audio.src = source;
-    }
+    if (event.key === 'Tab') this.inputModality = 'keyboard';
 
-    const sequenceElapsed = performance.now() - this.sequenceStart;
-    audio.volume = sequenceElapsed >= TITLE_TIMELINE.titleComplete
-      ? TITLE_AUDIO.targetVolume
-      : 0;
-    audio.muted = false;
-    this.dataset.audio = 'loading';
-    this.updateAudioControls();
-
-    try {
-      await audio.play();
-      this.dataset.audio = 'playing';
-      this.fadeAudioFromTimeline(audio);
-      this.updateAudioControls();
-    } catch {
-      this.markAudioUnavailable(audio);
-    }
-  }
-
-  private fadeAudioFromTimeline(audio: HTMLAudioElement) {
-    if (this.audioFadeFrame !== undefined) cancelAnimationFrame(this.audioFadeFrame);
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const fadeStart = reducedMotion ? 0 : TITLE_TIMELINE.audioFadeStart;
-    const fadeComplete = reducedMotion
-      ? TITLE_TIMELINE.reducedAudioFadeComplete
-      : TITLE_TIMELINE.titleComplete;
-
-    const updateVolume = (now: number) => {
-      const elapsed = now - this.sequenceStart;
-
-      if (elapsed < fadeStart) {
-        audio.volume = 0;
-        this.audioFadeFrame = requestAnimationFrame(updateVolume);
-        return;
-      }
-
-      const linearProgress = Math.min(
-        1,
-        Math.max(0, (elapsed - fadeStart) / Math.max(1, fadeComplete - fadeStart)),
-      );
-      const easedProgress = linearProgress * linearProgress * (3 - 2 * linearProgress);
-      audio.volume = TITLE_AUDIO.targetVolume * easedProgress;
-
-      if (linearProgress < 1) {
-        this.audioFadeFrame = requestAnimationFrame(updateVolume);
-      } else {
-        this.audioFadeFrame = undefined;
-      }
-    };
-
-    this.audioFadeFrame = requestAnimationFrame(updateVolume);
-  }
-
-  private toggleMute() {
-    const audio = this.querySelector<HTMLAudioElement>('[data-title-audio]');
-    if (!audio) return;
-
-    if (!audio.getAttribute('src')) {
-      void this.startAudio();
+    if (event.key === 'Escape' && this.screenState !== 'title') {
+      event.preventDefault();
+      this.returnToTitle();
       return;
     }
 
-    audio.muted = !audio.muted;
-    this.dataset.audio = audio.muted ? 'muted' : audio.paused ? 'paused' : 'playing';
-    this.updateAudioControls();
+    if (event.key !== 'Enter') return;
+
+    if (this.screenState !== 'title' || !this.continueReady) return;
+
+    const interactiveTarget = target?.closest('button, a, input, select, textarea');
+    if (interactiveTarget && !interactiveTarget.matches('[data-fragment-enter]')) return;
+
+    event.preventDefault();
+    this.beginFragmentTransition();
   }
 
-  private async togglePlayback() {
-    const audio = this.querySelector<HTMLAudioElement>('[data-title-audio]');
-    if (!audio?.getAttribute('src')) return;
+  /*
+   * TITLE → FRAGMENT 只由这一处切换状态。
+   * CSS 读取 data-screen-state 展开切面，脚本只在统一时间线结束时开放交互。
+   */
+  private beginFragmentTransition() {
+    if (!this.continueReady || this.screenState !== 'title') return;
 
-    if (!audio.paused) {
-      audio.pause();
-      this.dataset.audio = 'paused';
-      this.updateAudioControls();
-      return;
+    this.clearFragmentFocus();
+    this.setScreenState('transitioning');
+
+    const continueButton = this.querySelector<HTMLButtonElement>('[data-fragment-enter]');
+    continueButton?.setAttribute('disabled', '');
+
+    const fragmentScreen = this.querySelector<HTMLElement>('[data-fragment-screen]');
+    fragmentScreen?.setAttribute('aria-hidden', 'true');
+    fragmentScreen?.setAttribute('inert', '');
+
+    this.scheduleScreenState(
+      () => this.completeFragmentTransition(),
+      this.getScreenTransitionDuration('enter'),
+    );
+  }
+
+  private completeFragmentTransition() {
+    if (this.screenState !== 'transitioning') return;
+
+    this.setScreenState('fragments');
+
+    const fragmentScreen = this.querySelector<HTMLElement>('[data-fragment-screen]');
+    fragmentScreen?.setAttribute('aria-hidden', 'false');
+    fragmentScreen?.removeAttribute('inert');
+    fragmentScreen?.focus({ preventScroll: true });
+  }
+
+  /* 切面收回时不刷新页面，标题音乐也保持当前播放位置。 */
+  private returnToTitle() {
+    if (this.screenState === 'title' || this.screenState === 'returning') return;
+
+    this.clearFragmentFocus();
+
+    const fragmentScreen = this.querySelector<HTMLElement>('[data-fragment-screen]');
+    fragmentScreen?.setAttribute('aria-hidden', 'true');
+    fragmentScreen?.setAttribute('inert', '');
+
+    this.setScreenState('returning');
+    this.scheduleScreenState(
+      () => this.completeReturnToTitle(),
+      this.getScreenTransitionDuration('return'),
+    );
+  }
+
+  private completeReturnToTitle() {
+    if (this.screenState !== 'returning') return;
+
+    this.setScreenState('title');
+
+    const continueButton = this.querySelector<HTMLButtonElement>('[data-fragment-enter]');
+    if (continueButton && this.continueReady) {
+      continueButton.disabled = false;
+      continueButton.focus({ preventScroll: true });
+    }
+  }
+
+  private setScreenState(state: ScreenState) {
+    this.screenState = state;
+    this.dataset.screenState = state;
+  }
+
+  private scheduleScreenState(callback: () => void, delay: number) {
+    if (this.screenTransitionTimer !== undefined) {
+      window.clearTimeout(this.screenTransitionTimer);
     }
 
-    try {
-      await audio.play();
-      this.dataset.audio = audio.muted ? 'muted' : 'playing';
-      this.updateAudioControls();
-    } catch {
-      this.markAudioUnavailable(audio);
+    this.screenTransitionTimer = window.setTimeout(() => {
+      this.screenTransitionTimer = undefined;
+      callback();
+    }, delay);
+  }
+
+  private getScreenTransitionDuration(direction: 'enter' | 'return') {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return FRAGMENT_TIMELINE.reducedTransitionComplete;
+    }
+
+    return direction === 'enter'
+      ? FRAGMENT_TIMELINE.transitionComplete
+      : FRAGMENT_TIMELINE.returnComplete;
+  }
+
+  /*
+   * 桌面端只有真正具备 Hover 的精细指针才响应 pointerenter。
+   * 触屏产生的兼容鼠标事件不会在第一次 Tap 时绕过 Focus 阶段。
+   */
+  private handleFragmentPointerEnter(event: PointerEvent, panel: HTMLButtonElement) {
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!canHover || event.pointerType === 'touch') return;
+
+    this.inputModality = 'pointer';
+    this.lastPointerType = event.pointerType;
+    this.focusFragment(panel);
+  }
+
+  /*
+   * 手机第一次 Tap 只聚焦；第二次 Tap 目前保持 Focus，不执行 href。
+   * 等内容页建立后，可在 wasFocused 分支接入真正导航。
+   */
+  private handleFragmentActivation(event: MouseEvent, panel: HTMLButtonElement) {
+    if (this.screenState !== 'fragments') return;
+
+    event.preventDefault();
+
+    const fragmentId = panel.dataset.fragmentId;
+    if (!fragmentId) return;
+
+    const usesTapFocus = this.inputModality === 'pointer'
+      && (this.lastPointerType === 'touch'
+        || window.matchMedia('(hover: none), (pointer: coarse)').matches);
+    const wasFocused = this.focusedFragment === fragmentId;
+
+    this.setFocusedFragment(fragmentId);
+
+    if (usesTapFocus && !wasFocused) {
+      panel.focus({ preventScroll: true });
     }
   }
 
-  private revealAudioControls() {
-    this.controlsReady = true;
-    const controls = this.querySelector<HTMLElement>('[data-sound-controls]');
-    controls?.removeAttribute('inert');
-    this.updateAudioControls();
+  private focusFragment(panel: HTMLButtonElement) {
+    if (this.screenState !== 'fragments') return;
+
+    const fragmentId = panel.dataset.fragmentId;
+    if (fragmentId) this.setFocusedFragment(fragmentId);
   }
 
-  private markAudioUnavailable(audio: HTMLAudioElement) {
-    if (this.audioFadeFrame !== undefined) cancelAnimationFrame(this.audioFadeFrame);
-    this.audioFadeFrame = undefined;
-    audio.pause();
-    audio.removeAttribute('src');
-    this.dataset.audio = 'unavailable';
-    this.updateAudioControls();
+  private setFocusedFragment(fragmentId: string) {
+    if (this.screenState !== 'fragments' || this.focusedFragment === fragmentId) return;
+
+    this.focusedFragment = fragmentId;
+    this.dataset.focusedFragment = fragmentId;
+    this.querySelectorAll<HTMLButtonElement>('[data-fragment-id]').forEach((panel) => {
+      panel.ariaPressed = String(panel.dataset.fragmentId === fragmentId);
+    });
   }
 
-  private updateAudioControls() {
-    const audio = this.querySelector<HTMLAudioElement>('[data-title-audio]');
-    const controls = this.querySelector<HTMLElement>('[data-sound-controls]');
-    const muteButton = this.querySelector<HTMLButtonElement>('[data-sound-toggle]');
-    const playbackButton = this.querySelector<HTMLButtonElement>('[data-playback-toggle]');
-    if (!audio || !controls || !muteButton || !playbackButton) return;
+  private clearFragmentFocus(moveFocusToScreen = false) {
+    if (this.focusedFragment === null && !this.hasAttribute('data-focused-fragment')) return;
 
-    const unavailable = this.dataset.audio === 'unavailable'
-      || audio.dataset.trackAvailable !== 'true';
-    const hasSource = Boolean(audio.getAttribute('src'));
-    const muted = audio.muted || !hasSource;
-    const paused = audio.paused && hasSource;
+    this.focusedFragment = null;
+    this.removeAttribute('data-focused-fragment');
+    this.querySelectorAll<HTMLButtonElement>('[data-fragment-id]').forEach((panel) => {
+      panel.ariaPressed = 'false';
+    });
 
-    controls.dataset.muted = String(muted);
-    controls.dataset.playback = paused ? 'paused' : 'playing';
-    controls.dataset.available = String(!unavailable);
-
-    muteButton.disabled = !this.controlsReady || unavailable;
-    muteButton.ariaPressed = String(muted);
-    muteButton.ariaLabel = muted ? '开启标题音乐' : '静音标题音乐';
-
-    playbackButton.disabled = !this.controlsReady || !hasSource || unavailable;
-    playbackButton.ariaPressed = String(paused);
-    playbackButton.ariaLabel = paused ? '恢复标题音乐' : '暂停标题音乐';
+    if (moveFocusToScreen && this.screenState === 'fragments') {
+      this.querySelector<HTMLElement>('[data-fragment-screen]')?.focus({ preventScroll: true });
+    }
   }
+
+  private revealContinuePrompt() {
+    this.continueReady = true;
+    const continueButton = this.querySelector<HTMLButtonElement>('[data-fragment-enter]');
+    if (continueButton && this.screenState === 'title') continueButton.disabled = false;
+  }
+
 }
 
-if (!customElements.get('finite-title-screen')) {
-  customElements.define('finite-title-screen', FiniteTitleScreen);
+if (!customElements.get('asymptote-title-screen')) {
+  customElements.define('asymptote-title-screen', AsymptoteTitleScreen);
 }
