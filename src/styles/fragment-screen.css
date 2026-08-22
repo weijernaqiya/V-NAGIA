@@ -66,30 +66,39 @@
 
 /*
  * 每个按钮覆盖整个视口，再由 polygon 截取可点击切面。
- * 相邻坐标保留约 0.5% 的覆盖，避免高 DPI 屏幕出现白色分割线。
+ * 桌面构图以 WRITING 为左侧大区；右侧上方是 IMAGE / CINEMA 两个中区，
+ * 下方是 MUSIC / GAMES 两个小区。大部分边界保持水平或垂直，只有主交汇处
+ * 和两条内部边界轻微倾斜，避免五等分网格感，也不把页面切成大量锐利碎片。
+ * 相邻坐标保留约 0.5% 的覆盖，用于消除高 DPI 屏幕的抗锯齿细缝。
  */
 .fragment-panel--writing {
   --fragment-delay: var(--delay-fragment-writing);
-  --fragment-entry-transform: translate3d(-3.5%, -1.5%, 0) scale(1.015);
-  clip-path: polygon(0 0, 38.5% 0, 49.5% 50.5%, 0 66.5%);
+  --fragment-entry-transform: translate3d(-3.2%, 0, 0) scale(1.012);
+  clip-path: polygon(0 0, 42.5% 0, 42.5% 43.5%, 47.5% 58.5%, 39.5% 100%, 0 100%);
 }
 
-.fragment-panel--photography {
-  --fragment-delay: var(--delay-fragment-photography);
-  --fragment-entry-transform: translate3d(3.5%, -1.5%, 0) scale(1.015);
-  clip-path: polygon(38% 0, 100% 0, 100% 43.5%, 49% 51%);
+.fragment-panel--image {
+  --fragment-delay: var(--delay-fragment-image);
+  --fragment-entry-transform: translate3d(1.5%, -2.6%, 0) scale(1.012);
+  clip-path: polygon(42% 0, 72.5% 0, 69.5% 32.5%, 73.5% 59%, 47% 59%, 42% 43%);
+}
+
+.fragment-panel--cinema {
+  --fragment-delay: var(--delay-fragment-cinema);
+  --fragment-entry-transform: translate3d(2.8%, -2.2%, 0) scale(1.012);
+  clip-path: polygon(72% 0, 100% 0, 100% 59%, 73% 59%, 69% 32%);
 }
 
 .fragment-panel--music {
   --fragment-delay: var(--delay-fragment-music);
-  --fragment-entry-transform: translate3d(-2.5%, 3%, 0) scale(1.015);
-  clip-path: polygon(0 66%, 49.5% 50%, 69.5% 100%, 0 100%);
+  --fragment-entry-transform: translate3d(0.8%, 2.8%, 0) scale(1.012);
+  clip-path: polygon(47% 58%, 73.5% 58%, 68% 100%, 39% 100%);
 }
 
-.fragment-panel--archive {
-  --fragment-delay: var(--delay-fragment-archive);
-  --fragment-entry-transform: translate3d(3%, 3%, 0) scale(1.015);
-  clip-path: polygon(49% 50%, 100% 43%, 100% 100%, 69% 100%);
+.fragment-panel--games {
+  --fragment-delay: var(--delay-fragment-games);
+  --fragment-entry-transform: translate3d(2.8%, 2.8%, 0) scale(1.012);
+  clip-path: polygon(73% 58%, 100% 58%, 100% 100%, 67.5% 100%);
 }
 
 .fragment-panel__visual {
@@ -98,7 +107,7 @@
   display: block;
   background-color: var(--fragment-color);
   background-image: var(--fragment-image);
-  background-position: center;
+  background-position: var(--fragment-image-position, center);
   background-repeat: no-repeat;
   background-size: cover;
   filter: blur(0) saturate(1) contrast(1) brightness(1);
@@ -114,40 +123,74 @@
 .fragment-panel__label {
   position: absolute;
   z-index: 2;
+  display: grid;
+  gap: 0.34rem;
+  width: max-content;
+  max-width: min(25rem, 34vw);
   color: #40484e;
-  font-family: Didot, "Bodoni MT", "Baskerville Display PT", Baskerville, "Times New Roman", serif;
-  font-size: clamp(0.62rem, 0.72vw, 0.78rem);
   font-weight: 400;
-  letter-spacing: 0.48em;
-  white-space: nowrap;
-  opacity: 0;
+  text-align: left;
+  opacity: 0.56;
   pointer-events: none;
-  transform: translate3d(0, 5px, 0);
+  transform: translate3d(0, 0, 0);
   transition:
     color var(--duration-fragment-focus) ease,
-    letter-spacing var(--duration-fragment-focus) var(--fragment-focus-easing),
     opacity var(--duration-fragment-focus) ease,
     transform var(--duration-fragment-focus) var(--fragment-focus-easing);
 }
 
-.fragment-panel__label--upper-left {
-  top: 23%;
-  left: 12%;
+.fragment-panel__title {
+  font-family: Didot, "Bodoni MT", "Baskerville Display PT", Baskerville, "Times New Roman", serif;
+  font-size: clamp(0.7rem, 0.92vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  line-height: 1;
+  white-space: nowrap;
+  transition: letter-spacing var(--duration-fragment-focus) var(--fragment-focus-easing);
+}
+
+.fragment-panel__title-zh {
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: clamp(0.46rem, 0.54vw, 0.58rem);
+  letter-spacing: 0.24em;
+  line-height: 1;
+  opacity: 0.82;
+}
+
+.fragment-panel__description {
+  margin-top: 0.08rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(0.34rem, 0.4vw, 0.43rem);
+  letter-spacing: 0.13em;
+  line-height: 1.5;
+  opacity: 0.62;
+}
+
+.fragment-panel__label--left-major {
+  top: 24%;
+  left: 8.5%;
+}
+
+.fragment-panel__label--upper-middle {
+  top: 17%;
+  left: 48%;
 }
 
 .fragment-panel__label--upper-right {
-  top: 19%;
-  right: 15%;
+  top: 18%;
+  right: 7.5%;
+  text-align: right;
 }
 
-.fragment-panel__label--lower-left {
-  bottom: 17%;
-  left: 16%;
+.fragment-panel__label--lower-middle {
+  bottom: 14%;
+  left: 47%;
 }
 
 .fragment-panel__label--lower-right {
-  right: 13%;
-  bottom: 18%;
+  right: 7.5%;
+  bottom: 13%;
+  text-align: right;
 }
 
 .title-screen:is(
@@ -188,64 +231,78 @@
 
 .title-screen[data-screen-state="fragments"][data-focused-fragment]
   .fragment-panel::after {
-  opacity: 0.3;
+  opacity: 0.26;
 }
 
 .title-screen[data-screen-state="fragments"][data-focused-fragment="writing"]
   .fragment-panel--writing,
-.title-screen[data-screen-state="fragments"][data-focused-fragment="photography"]
-  .fragment-panel--photography,
+.title-screen[data-screen-state="fragments"][data-focused-fragment="image"]
+  .fragment-panel--image,
+.title-screen[data-screen-state="fragments"][data-focused-fragment="cinema"]
+  .fragment-panel--cinema,
 .title-screen[data-screen-state="fragments"][data-focused-fragment="music"]
   .fragment-panel--music,
-.title-screen[data-screen-state="fragments"][data-focused-fragment="archive"]
-  .fragment-panel--archive {
+.title-screen[data-screen-state="fragments"][data-focused-fragment="games"]
+  .fragment-panel--games {
   z-index: 2;
   opacity: 1;
 }
 
 .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__visual,
-.title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__visual,
+.title-screen[data-focused-fragment="image"] .fragment-panel--image .fragment-panel__visual,
+.title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__visual,
 .title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__visual,
-.title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__visual {
+.title-screen[data-focused-fragment="games"] .fragment-panel--games .fragment-panel__visual {
   filter: blur(0) saturate(1.045) contrast(1.035) brightness(1);
   opacity: 1;
   transform: scale(var(--fragment-focused-scale));
 }
 
 .title-screen[data-focused-fragment="writing"] .fragment-panel--writing::after,
-.title-screen[data-focused-fragment="photography"] .fragment-panel--photography::after,
+.title-screen[data-focused-fragment="image"] .fragment-panel--image::after,
+.title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema::after,
 .title-screen[data-focused-fragment="music"] .fragment-panel--music::after,
-.title-screen[data-focused-fragment="archive"] .fragment-panel--archive::after {
+.title-screen[data-focused-fragment="games"] .fragment-panel--games::after {
   opacity: 0;
 }
 
+.title-screen[data-screen-state="fragments"][data-focused-fragment]
+  .fragment-panel__label {
+  opacity: 0.2;
+  transform: translate3d(0, 2px, 0);
+}
+
 .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__label,
-.title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__label,
+.title-screen[data-focused-fragment="image"] .fragment-panel--image .fragment-panel__label,
+.title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__label,
 .title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__label,
-.title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__label,
+.title-screen[data-focused-fragment="games"] .fragment-panel--games .fragment-panel__label,
 .fragment-panel:focus-visible .fragment-panel__label {
   color: #30393f;
-  letter-spacing: 0.56em;
-  opacity: 0.88;
+  opacity: 0.94;
   transform: translate3d(0, 0, 0);
 }
 
+.title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__title,
+.title-screen[data-focused-fragment="image"] .fragment-panel--image .fragment-panel__title,
+.title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__title,
+.title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__title,
+.title-screen[data-focused-fragment="games"] .fragment-panel--games .fragment-panel__title,
+.fragment-panel:focus-visible .fragment-panel__title {
+  letter-spacing: 0.5em;
+}
+
 /*
- * 标题周围的透明区域用于触屏退出 Focus。
- * 它没有任何视觉样式，也不会成为第五个键盘导航项目。
+ * 透明命中面只覆盖英文标题和箭头本身；Logo SVG 右侧的插画预留空间
+ * 保持穿透，避免它遮住 IMAGE / CINEMA 等真实栏目入口。
  */
-.fragment-screen__focus-reset {
-  position: absolute;
-  z-index: 3;
-  top: 36%;
-  left: 7%;
-  width: min(49vw, 49rem);
-  height: 27%;
+.logo__focus-reset-hit {
+  fill: transparent;
   pointer-events: none;
 }
 
-.title-screen[data-screen-state="fragments"] .fragment-screen__focus-reset {
-  pointer-events: auto;
+.title-screen[data-screen-state="fragments"] .logo__focus-reset-hit {
+  pointer-events: all;
 }
 
 .fragment-screen__back {
@@ -290,51 +347,76 @@
 }
 
 /*
- * 手机端不是桌面构图的缩小版：四块切面改为纵向交错，
- * 仍旧共同覆盖整屏，并为每一块保留足够的触控面积。
+ * 手机端不是桌面构图的缩小版：五块切面按三层纵向交错，
+ * WRITING 保留最大的上部入口，中层并置 IMAGE / CINEMA，底层并置
+ * MUSIC / GAMES。边界斜度进一步降低，避免小屏出现锐利碎片感。
  */
 @media (max-width: 700px) {
   .fragment-panel--writing {
-    clip-path: polygon(0 0, 100% 0, 100% 30.5%, 0 41%);
+    clip-path: polygon(0 0, 100% 0, 100% 31%, 0 42%);
   }
 
-  .fragment-panel--photography {
-    clip-path: polygon(0 40.5%, 100% 30%, 100% 44%, 58% 58.5%, 0 66.5%);
+  .fragment-panel--image {
+    clip-path: polygon(0 41.5%, 58.5% 35%, 53% 65.5%, 0 71.5%);
+  }
+
+  .fragment-panel--cinema {
+    clip-path: polygon(58% 34.5%, 100% 30.5%, 100% 61%, 52.5% 66%);
   }
 
   .fragment-panel--music {
-    clip-path: polygon(0 66%, 58.5% 58%, 100% 43.5%, 100% 79.5%, 0 88.5%);
+    clip-path: polygon(0 71%, 53% 65%, 67% 100%, 0 100%);
   }
 
-  .fragment-panel--archive {
-    clip-path: polygon(0 88%, 100% 79%, 100% 100%, 0 100%);
+  .fragment-panel--games {
+    clip-path: polygon(52.5% 65.5%, 100% 60.5%, 100% 100%, 66.5% 100%);
   }
 
-  .fragment-panel__label--upper-left {
-    top: 16%;
-    left: 10%;
+  .fragment-panel__label {
+    gap: 0.25rem;
+    max-width: 44vw;
+  }
+
+  .fragment-panel__title {
+    font-size: clamp(0.63rem, 2.5vw, 0.72rem);
+    letter-spacing: 0.34em;
+  }
+
+  .fragment-panel__title-zh {
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+  }
+
+  .fragment-panel__description {
+    font-size: 0.34rem;
+    letter-spacing: 0.08em;
+    line-height: 1.45;
+    white-space: normal;
+  }
+
+  .fragment-panel__label--left-major {
+    top: 14%;
+    left: 8%;
+  }
+
+  .fragment-panel__label--upper-middle {
+    top: 58%;
+    left: 7%;
   }
 
   .fragment-panel__label--upper-right {
     top: 43%;
-    right: 10%;
+    right: 6%;
   }
 
-  .fragment-panel__label--lower-left {
-    bottom: 17%;
-    left: 11%;
+  .fragment-panel__label--lower-middle {
+    bottom: 12%;
+    left: 7%;
   }
 
   .fragment-panel__label--lower-right {
-    right: 9%;
+    right: 6%;
     bottom: 8%;
-  }
-
-  .fragment-screen__focus-reset {
-    top: 47%;
-    left: 4%;
-    width: 92%;
-    height: 21%;
   }
 
   .fragment-screen__back {
@@ -374,9 +456,10 @@
   }
 
   .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__visual,
-  .title-screen[data-focused-fragment="photography"] .fragment-panel--photography .fragment-panel__visual,
+  .title-screen[data-focused-fragment="image"] .fragment-panel--image .fragment-panel__visual,
+  .title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__visual,
   .title-screen[data-focused-fragment="music"] .fragment-panel--music .fragment-panel__visual,
-  .title-screen[data-focused-fragment="archive"] .fragment-panel--archive .fragment-panel__visual {
+  .title-screen[data-focused-fragment="games"] .fragment-panel--games .fragment-panel__visual {
     filter: saturate(1.02) contrast(1.02) brightness(1);
     transform: none;
   }

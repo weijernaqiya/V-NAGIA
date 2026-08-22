@@ -14,6 +14,7 @@ const { fragment } = Astro.props;
 const panelStyle = [
   `--fragment-color: ${fragment.color}`,
   `--fragment-image: ${fragment.image ? `url("${fragment.image}")` : 'none'}`,
+  `--fragment-image-position: ${fragment.imagePosition}`,
 ].join('; ');
 ---
 
@@ -23,7 +24,7 @@ const panelStyle = [
   style={panelStyle}
   data-fragment-id={fragment.id}
   data-fragment-href={fragment.href}
-  aria-label={fragment.title}
+  aria-label={`${fragment.title}，${fragment.titleZh}，${fragment.description}`}
   aria-pressed="false"
 >
   <span class="fragment-panel__visual" aria-hidden="true"></span>
@@ -33,6 +34,8 @@ const panelStyle = [
       `fragment-panel__label--${fragment.labelPosition}`,
     ]}
   >
-    {fragment.title}
+    <span class="fragment-panel__title">{fragment.title}</span>
+    <span class="fragment-panel__title-zh" lang="zh-CN">{fragment.titleZh}</span>
+    <span class="fragment-panel__description">{fragment.description}</span>
   </span>
 </button>

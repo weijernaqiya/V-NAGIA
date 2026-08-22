@@ -30,7 +30,11 @@ const timelineStyle = [getTitleTimelineStyle(), getFragmentTimelineStyle()].join
         </div>
 
         <div class="title-composition__logo">
-          <div class="title-composition__logo-motion">
+          <!--
+            切面获得 Focus 后，点击仍然可见的品牌 Logo 可以退出 Focus。
+            命中区由 Logo SVG 内部限定为英文标题与箭头，不覆盖右侧插画预留区。
+          -->
+          <div class="title-composition__logo-motion" data-fragment-focus-reset>
             <AsymptoteLogo />
           </div>
         </div>
