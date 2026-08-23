@@ -1,0 +1,45 @@
+---
+import { NOVELS, getNovelChapters } from '../../data/writing';
+
+const workspaceSeed = NOVELS.map((novel) => ({
+  id: novel.id,
+  title: novel.title,
+  chapters: getNovelChapters(novel).map((chapter) => ({ ...chapter, novelId: novel.id })),
+}));
+const serializedSeed = JSON.stringify(workspaceSeed).replaceAll('<', '\\u003c');
+---
+
+<aside class="writing-tool-panel writing-chapters" data-editor-chapters aria-hidden="true" inert>
+  <header>
+    <div>
+      <p>章节管理</p>
+      <span>小说工作区</span>
+    </div>
+    <button type="button" data-editor-chapters-close aria-label="关闭章节管理">关闭</button>
+  </header>
+
+  <div class="writing-chapters__controls">
+    <label>
+      <span>作品</span>
+      <select data-editor-novel-select>
+        {NOVELS.map((novel) => <option value={novel.id}>{novel.title}</option>)}
+      </select>
+    </label>
+    <div>
+      <button type="button" data-editor-novel-export>导出整部小说</button>
+      <button type="button" data-editor-chapter-new>新增章节</button>
+    </div>
+  </div>
+
+  <p class="writing-tool-panel__status" data-editor-chapter-status aria-live="polite">
+    拖动章节可调整顺序；手机端可使用上移与下移。
+  </p>
+  <ol class="writing-chapters__list" data-editor-chapter-list></ol>
+
+  <p class="writing-tool-panel__boundary">
+    当前调整只作用于本地章节工作区，不会修改公网静态作品。
+    “发布”状态在这里用于整理流程，真正上线仍需要服务端权限与构建发布。
+  </p>
+
+  <script is:inline type="application/json" data-editor-chapter-seed set:html={serializedSeed}></script>
+</aside>

@@ -1,0 +1,22 @@
+---
+import ArticleReader from '../../../components/writing/ArticleReader.astro';
+import { WRITING_ARTICLES, WRITING_TYPE_LABELS, getWritingContentHref } from '../../../data/writing';
+import WritingLayout from '../../../layouts/WritingLayout.astro';
+import type { WritingArticle } from '../../../types/writing';
+
+export function getStaticPaths() {
+  return WRITING_ARTICLES
+    .filter((article) => article.status === 'PUBLISHED' && article.visibility !== 'PRIVATE')
+    .map((article) => {
+      const [, , type, slug] = getWritingContentHref(article).split('/');
+      return { params: { type, slug }, props: { article } };
+    });
+}
+
+interface Props { article: WritingArticle }
+const { article } = Astro.props;
+---
+
+<WritingLayout title={article.title} description={article.summary} sectionLabel={WRITING_TYPE_LABELS[article.type]}>
+  <ArticleReader article={article} />
+</WritingLayout>

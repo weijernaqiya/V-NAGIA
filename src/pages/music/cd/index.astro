@@ -1,0 +1,65 @@
+---
+import MusicArtwork from '../../../components/music/MusicArtwork.astro';
+import MusicEmptyState from '../../../components/music/MusicEmptyState.astro';
+import MusicPageHeading from '../../../components/music/MusicPageHeading.astro';
+import { staticMusicRepository } from '../../../lib/music/repositories';
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="CD 档案" description="实体唱片版本、收藏状态与抓轨记录档案。">
+  <div class="music-page-shell music-cd-page">
+    <MusicPageHeading
+      index="08 / PHYSICAL ARCHIVE"
+      title="CD 档案"
+      description="实体唱片是独立收藏对象：版本、编号、状态、扫描与抓轨记录不会被压进普通专辑字段。"
+      count={`${catalog.cds.length} 件实体收藏`}
+    />
+
+    <nav class="music-cd-filters" aria-label="CD 档案视图">
+      <button type="button" aria-pressed="true">全部</button>
+      <button type="button" disabled>已拥有</button>
+      <button type="button" disabled>愿望清单</button>
+      <span>筛选将在录入实体资料后启用</span>
+    </nav>
+
+    {catalog.cds.length > 0 ? (
+      <div class="music-cd-grid">
+        {catalog.cds.map((cd, index) => {
+          const album = catalog.albums.find((item) => item.id === cd.albumId);
+          return album && (
+            <article>
+              <MusicArtwork title={album.title} artwork={cd.artwork ?? album.artwork} accent={album.accent} />
+              <span>{String(index + 1).padStart(3, '0')}</span>
+              <h2>{album.title}</h2>
+              <p>{cd.edition ?? '默认版本'} · {cd.format}</p>
+              <dl>
+                <div><dt>收藏状态</dt><dd>{cd.status}</dd></div>
+                <div><dt>抓轨状态</dt><dd>{cd.ripStatus}</dd></div>
+              </dl>
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <MusicEmptyState
+        title="实体档案仍为空"
+        description="目前没有用户提供的 CD 条目，因此这里不生成虚构唱片。进入管理页后可以准备第一份元数据草稿。"
+        href="/music/author"
+        action="进入音乐管理"
+      />
+    )}
+
+    <section class="music-cd-schema">
+      <header><p>档案结构</p><h2>一张实体唱片会保存什么</h2></header>
+      <dl>
+        <div><dt>版本</dt><dd>Edition / Catalog Number / Barcode / Country / Label</dd></div>
+        <div><dt>收藏</dt><dd>Condition / Purchase / Seller / Notes</dd></div>
+        <div><dt>图像</dt><dd>正面 / 背面 / 侧标 / 盘面 / Booklet / Obi</dd></div>
+        <div><dt>抓轨</dt><dd>Rip Status / Date / CUE / LOG / Checksum</dd></div>
+      </dl>
+      <p>抓轨日志、CUE 与校验属于下一阶段；没有真实工具输出时不会伪造结果。</p>
+    </section>
+  </div>
+</MusicLayout>

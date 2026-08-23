@@ -1,0 +1,21 @@
+---
+import MusicEmptyState from '../../components/music/MusicEmptyState.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+---
+
+<MusicLayout title="聆听历史" description="保存在当前浏览器中的 ASYMPTOTE 聆听时间线。">
+  <div class="music-page-shell music-history-page">
+    <MusicPageHeading
+      index="06 / LISTENING HISTORY"
+      title="聆听历史"
+      description="播放发生在时间里。记录只保存在当前浏览器，随时可以清除。"
+    />
+    <div class="music-history-page__tools">
+      <p><span data-music-history-count>0</span> 次记录</p>
+      <button type="button" data-music-history-clear>清除历史</button>
+    </div>
+    <ol class="music-history-list music-history-list--full" data-music-history-list></ol>
+    <MusicEmptyState title="尚无聆听历史" description="播放任意一首曲目后，时间线会在这里出现。" />
+  </div>
+</MusicLayout>

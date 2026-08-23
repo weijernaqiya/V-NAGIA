@@ -1,0 +1,18 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  href?: string;
+  action?: string;
+}
+const { title, description, href, action } = Astro.props;
+---
+
+<div class="music-empty-state">
+  <span aria-hidden="true"><i></i><i></i><i></i></span>
+  <div>
+    <h2>{title}</h2>
+    <p>{description}</p>
+  </div>
+  {href && action && <a href={href}>{action}<b class="music-action-path" aria-hidden="true"></b></a>}
+</div>

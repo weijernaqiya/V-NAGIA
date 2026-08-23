@@ -22,3 +22,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# 本地试听音源不进入公开仓库；目录说明和占位文件仍会提交。
+public/audio/title-theme.*
+public/audio/tracks/*
+!public/audio/tracks/.gitkeep

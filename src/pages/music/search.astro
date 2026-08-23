@@ -1,0 +1,43 @@
+---
+import MusicAlbumCard from '../../components/music/MusicAlbumCard.astro';
+import MusicArtistCard from '../../components/music/MusicArtistCard.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicTrackList from '../../components/music/MusicTrackList.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="搜索" description="在曲目、专辑与艺人之间搜索 ASYMPTOTE 音乐资料。">
+  <div class="music-page-shell music-search-page" data-music-search-page>
+    <MusicPageHeading
+      index="07 / SEARCH"
+      title="搜索"
+      description="一次搜索曲目、专辑与艺人；高级查询语法将在资料库接入服务器后开放。"
+    />
+    <label class="music-search-field">
+      <span>搜索音乐资料</span>
+      <input type="search" data-music-global-search autofocus autocomplete="off" placeholder="曲目 / 专辑 / 艺人" />
+      <i aria-hidden="true"></i>
+    </label>
+    <p class="music-search-status" data-music-search-status>输入关键词开始搜索</p>
+
+    <section data-music-search-group="tracks">
+      <h2>曲目</h2>
+      <MusicTrackList tracks={catalog.tracks} catalog={catalog} source="search" compact />
+    </section>
+    <section data-music-search-group="albums">
+      <h2>专辑</h2>
+      <div class="music-album-grid">
+        {catalog.albums.map((album, index) => <MusicAlbumCard album={album} catalog={catalog} index={index} />)}
+      </div>
+    </section>
+    <section data-music-search-group="artists">
+      <h2>艺人</h2>
+      <div class="music-artist-list">
+        {catalog.artists.map((artist, index) => <MusicArtistCard artist={artist} catalog={catalog} index={index} />)}
+      </div>
+    </section>
+  </div>
+</MusicLayout>

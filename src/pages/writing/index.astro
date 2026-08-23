@@ -1,0 +1,84 @@
+---
+import FeaturedWork from '../../components/writing/FeaturedWork.astro';
+import WritingSignal from '../../components/writing/WritingSignal.astro';
+import WritingShelf from '../../components/writing/WritingShelf.astro';
+import { NOVELS, NOVEL_STATUS_LABELS, formatWritingDate, getPublicWritingArticles, getWritingContentHref } from '../../data/writing';
+import WritingLayout from '../../layouts/WritingLayout.astro';
+
+const articles = getPublicWritingArticles();
+const toEntry = (article: (typeof articles)[number]) => ({
+  id: article.id,
+  title: article.title,
+  titleEn: article.titleEn,
+  summary: article.summary,
+  meta: `${formatWritingDate(article.publishedAt)} / 约 ${article.readingTime} 分钟`,
+  href: getWritingContentHref(article),
+});
+const fictionEntries = NOVELS.map((novel) => ({
+  id: novel.id,
+  title: novel.title,
+  titleEn: novel.titleEn,
+  summary: novel.summary,
+  meta: `${NOVEL_STATUS_LABELS[novel.status]} / ${formatWritingDate(novel.updatedAt)}`,
+  href: `/writing/fiction/${novel.slug}`,
+}));
+const sectionLinks = [
+  ['#featured', '主要作品'],
+  ['#fiction', '小说'],
+  ['#essays', '文章'],
+  ['#notes', '札记'],
+  ['#worlds', '世界'],
+] as const;
+---
+
+<WritingLayout
+  title="写作"
+  description="ASYMPTOTE 写作档案：小说、文章、札记与世界设定。"
+>
+  <header class="writing-index-hero writing-reveal">
+    <p class="writing-index-hero__index">写作档案 / 01</p>
+    <h1 lang="zh-CN">写作</h1>
+    <p class="writing-index-hero__zh" lang="zh-CN">文字 · 世界 · 记忆</p>
+    <p class="writing-index-hero__statement">
+      一座保存故事、世界、文章<br />与未完成旅程的私人文学档案馆。
+    </p>
+    <WritingSignal className="writing-index-hero__signal" label="持续生成 / 尚未抵达" />
+    <span class="writing-index-hero__line" aria-hidden="true"></span>
+  </header>
+
+  <nav class="writing-index-nav" aria-label="写作内容分类">
+    {sectionLinks.map(([href, label], index) => (
+      <a href={href}><span>{String(index + 1).padStart(2, '0')}</span>{label}</a>
+    ))}
+  </nav>
+
+  <div id="featured"><FeaturedWork novel={NOVELS[0]} /></div>
+
+  <div class="writing-index-sections">
+    <WritingShelf id="fiction" title="小说" titleZh="长篇作品" entries={fictionEntries} />
+    <WritingShelf id="shorts" title="短篇" titleZh="短篇小说" entries={[]} />
+    <WritingShelf
+      id="essays"
+      title="文章"
+      titleZh="长文 / 评论"
+      entries={articles.filter((item) => item.type === 'ESSAY').map(toEntry)}
+    />
+    <WritingShelf
+      id="notes"
+      title="札记"
+      titleZh="随笔 / 创作记录"
+      entries={articles.filter((item) => item.type === 'NOTE').map(toEntry)}
+    />
+    <WritingShelf
+      id="worlds"
+      title="世界"
+      titleZh="人物 / 地点 / 设定"
+      entries={articles.filter((item) => ['WORLD', 'CHARACTER', 'LORE'].includes(item.type)).map(toEntry)}
+    />
+  </div>
+
+  <aside class="writing-index-archive">
+    <p>全部记录 / 2026 —</p>
+    <a href="/writing/archive">进入归档 <span class="writing-action-path" aria-hidden="true"></span></a>
+  </aside>
+</WritingLayout>

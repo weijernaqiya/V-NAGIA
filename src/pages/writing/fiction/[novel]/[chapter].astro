@@ -1,0 +1,24 @@
+---
+import ChapterReader from '../../../../components/writing/ChapterReader.astro';
+import { NOVELS, getPublicNovelChapters } from '../../../../data/writing';
+import WritingLayout from '../../../../layouts/WritingLayout.astro';
+import type { Novel, NovelChapter } from '../../../../types/writing';
+
+export function getStaticPaths() {
+  return NOVELS.flatMap((novel) => getPublicNovelChapters(novel).map((chapter) => ({
+    params: { novel: novel.slug, chapter: chapter.slug },
+    props: { novel, chapter },
+  })));
+}
+
+interface Props { novel: Novel; chapter: NovelChapter }
+const { novel, chapter } = Astro.props;
+---
+
+<WritingLayout
+  title={`${chapter.label} — ${chapter.title}`}
+  description={chapter.summary}
+  sectionLabel={novel.title}
+>
+  <ChapterReader novel={novel} chapter={chapter} />
+</WritingLayout>

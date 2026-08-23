@@ -1,0 +1,51 @@
+---
+import type { MusicAlbum, MusicCatalog } from '../../types/music';
+import MusicArtwork from './MusicArtwork.astro';
+
+interface Props {
+  album: MusicAlbum;
+  catalog: MusicCatalog;
+  index?: number;
+}
+
+const { album, catalog, index = 0 } = Astro.props;
+const artists = album.artistIds
+  .map((id) => catalog.artists.find((artist) => artist.id === id)?.name)
+  .filter(Boolean)
+  .join(' / ');
+const playableTrackIds = album.trackIds.filter((id) => catalog.tracks.find((track) => track.id === id)?.audio);
+---
+
+<article
+  class="music-album-card"
+  data-music-catalog-item
+  data-search={`${album.title} ${artists} ${album.genres.join(' ')}`.toLocaleLowerCase()}
+  data-year={album.year ?? 0}
+  data-title={album.title}
+  style={`--music-card-delay: ${Math.min(index, 8) * 45}ms`}
+>
+  <div class="music-album-card__visual">
+    <MusicArtwork
+      title={album.title}
+      artwork={album.artwork}
+      accent={album.accent}
+      href={`/music/album/${album.slug}`}
+    />
+    {playableTrackIds.length > 0 && (
+      <button
+        type="button"
+        data-music-play-collection={JSON.stringify(playableTrackIds)}
+        data-queue-source="album"
+        aria-label={`播放专辑 ${album.title}`}
+      >播放</button>
+    )}
+  </div>
+  <a class="music-album-card__copy" href={`/music/album/${album.slug}`}>
+    <span>{String(index + 1).padStart(2, '0')}</span>
+    <div>
+      <h2>{album.title}</h2>
+      <p>{artists || '未知艺人'}</p>
+    </div>
+    <small>{album.year ?? '—'} · {album.edition ?? album.albumType}</small>
+  </a>
+</article>

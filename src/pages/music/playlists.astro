@@ -1,0 +1,30 @@
+---
+import MusicEmptyState from '../../components/music/MusicEmptyState.astro';
+import MusicLocalPlaylists from '../../components/music/MusicLocalPlaylists.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicPlaylistCard from '../../components/music/MusicPlaylistCard.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="歌单" description="ASYMPTOTE 的私人播放路径与顺序档案。">
+  <div class="music-page-shell">
+    <MusicPageHeading
+      index="04 / PLAYLIST PATHS"
+      title="歌单"
+      description="歌单不是推荐算法，而是一条由自己决定先后顺序的声音路径。"
+      count={`${catalog.playlists.length} 份歌单`}
+    />
+    <div class="music-playlist-list">
+      {catalog.playlists.length > 0
+        ? catalog.playlists.map((playlist, index) => (
+          <MusicPlaylistCard playlist={playlist} catalog={catalog} index={index} />
+        ))
+        : <MusicEmptyState title="尚无歌单" description="从资料库选择曲目后建立第一条声音路径。" />}
+    </div>
+
+    <MusicLocalPlaylists catalog={catalog} />
+  </div>
+</MusicLayout>

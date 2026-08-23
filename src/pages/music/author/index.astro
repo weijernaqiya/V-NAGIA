@@ -1,0 +1,114 @@
+---
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+---
+
+<MusicLayout
+  title="音乐管理"
+  description="本地准备音乐元数据草稿、歌词与导入清单。"
+  noindex
+>
+  <div class="music-author-page music-page-shell" data-music-author>
+    <header class="music-author-heading music-reveal">
+      <p>作者模式 / 本地工具</p>
+      <h1>音乐管理</h1>
+      <div>
+        <strong>公开页面与作者工具保持分离。</strong>
+        <p>本轮只在浏览器中整理导入草稿和元数据，不会上传、移动或删除你的原始音频文件。</p>
+      </div>
+      <span class="music-approach-line" aria-hidden="true"><i></i></span>
+    </header>
+
+    <section class="music-import-panel">
+      <header>
+        <p>01 / 导入入口</p>
+        <h2>选择本地音频</h2>
+        <span>FLAC / MP3 / AAC / M4A / WAV / OGG / OPUS</span>
+      </header>
+      <label class="music-import-drop" data-music-import-drop>
+        <input
+          type="file"
+          accept="audio/flac,audio/mpeg,audio/aac,audio/mp4,audio/wav,audio/ogg,.flac,.mp3,.aac,.m4a,.wav,.ogg,.opus"
+          multiple
+          data-music-import-files
+        />
+        <span aria-hidden="true"><i></i><b>＋</b></span>
+        <strong>选择音频文件</strong>
+        <small>只读取文件名、类型与大小，音频本体不会写入 localStorage。</small>
+      </label>
+      <p class="music-author-status" data-music-author-status aria-live="polite">等待选择文件</p>
+    </section>
+
+    <div class="music-author-workspace">
+      <section class="music-import-drafts">
+        <header>
+          <p>02 / 导入草稿</p>
+          <span><b data-music-draft-count>0</b> 条</span>
+        </header>
+        <ol data-music-draft-list></ol>
+        <p data-music-draft-empty>尚未选择音频。草稿只保存在当前浏览器。</p>
+      </section>
+
+      <form class="music-metadata-editor" data-music-metadata-form>
+        <header>
+          <p>03 / 元数据编辑器</p>
+          <h2 data-music-editor-heading>选择一条草稿</h2>
+        </header>
+        <fieldset disabled data-music-metadata-fields>
+          <input type="hidden" name="id" />
+          <label><span>曲目标题</span><input name="title" required /></label>
+          <label><span>艺人</span><input name="artist" required /></label>
+          <label><span>专辑</span><input name="album" /></label>
+          <div class="music-metadata-editor__numbers">
+            <label><span>DISC</span><input name="discNumber" type="number" min="1" value="1" /></label>
+            <label><span>TRACK</span><input name="trackNumber" type="number" min="1" /></label>
+            <label><span>年份</span><input name="year" type="number" min="1000" max="9999" /></label>
+          </div>
+          <label><span>流派</span><input name="genres" placeholder="使用 / 分隔" /></label>
+          <label><span>音频可见性</span>
+            <select name="visibility">
+              <option value="private">私人</option>
+              <option value="unlisted">不公开列出</option>
+              <option value="public">公开</option>
+            </select>
+          </label>
+          <label class="music-metadata-editor__note"><span>私人注释</span><textarea name="note" rows="4"></textarea></label>
+          <label class="music-metadata-editor__lyrics">
+            <span>附加歌词 / LRC</span>
+            <input type="file" accept=".txt,.lrc,text/plain" data-music-lyrics-file />
+            <small data-music-lyrics-state>尚未附加歌词</small>
+          </label>
+        </fieldset>
+        <footer>
+          <button type="submit" disabled data-music-metadata-save>保存元数据草稿</button>
+          <button type="button" disabled data-music-draft-remove>移除草稿</button>
+        </footer>
+      </form>
+    </div>
+
+    <section class="music-author-export">
+      <div>
+        <p>04 / 数据所有权</p>
+        <h2>导出导入清单</h2>
+        <p>导出的 JSON 只包含元数据和歌词文本，不包含音频文件。它可作为未来服务器导入器的输入草稿。</p>
+      </div>
+      <div>
+        <button type="button" data-music-drafts-export disabled>导出 JSON</button>
+        <button type="button" data-music-drafts-clear disabled>清空本地草稿</button>
+      </div>
+    </section>
+
+    <section class="music-coming-later" aria-label="下一阶段功能">
+      <p>下一阶段 / COMING LATER</p>
+      <ul>
+        <li>服务器目录扫描</li>
+        <li>自动读取嵌入式 Tag 与封面</li>
+        <li>MusicBrainz 元数据匹配</li>
+        <li>CUE / RIP LOG / CHECKSUM</li>
+        <li>服务器音频上传与 Range Streaming</li>
+      </ul>
+      <span>这些项目没有伪装成当前可用按钮。</span>
+    </section>
+  </div>
+</MusicLayout>
+
+<script src="../../../scripts/music-author.ts"></script>

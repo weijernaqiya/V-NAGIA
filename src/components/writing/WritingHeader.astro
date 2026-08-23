@@ -1,0 +1,36 @@
+---
+import SectionThemeToggle from '../section/SectionThemeToggle.astro';
+
+interface Props {
+  sectionLabel?: string;
+}
+
+const { sectionLabel } = Astro.props;
+const pathname = Astro.url.pathname;
+const isCurrent = (path: string) => pathname === path;
+---
+
+<header class="writing-header">
+  <nav class="writing-header__path" aria-label="当前位置">
+    <a class="writing-header__brand" href="/" aria-label="返回 ASYMPTOTE 首页">ASYMPTOTE</a>
+    <span class="writing-header__slash" aria-hidden="true">/</span>
+    <a class="writing-header__section" href="/writing" aria-current={isCurrent('/writing') ? 'page' : undefined}>写作</a>
+    {sectionLabel && (
+      <>
+        <span class="writing-header__slash writing-header__slash--current" aria-hidden="true">/</span>
+        <span class="writing-header__current">{sectionLabel}</span>
+      </>
+    )}
+  </nav>
+
+  <nav class="writing-header__utilities" aria-label="写作板块工具">
+    <a class="writing-header__utility--secondary" href="/writing/search" aria-current={isCurrent('/writing/search') ? 'page' : undefined}>搜索</a>
+    <a class="writing-header__utility--secondary" href="/writing/archive" aria-current={isCurrent('/writing/archive') ? 'page' : undefined}>归档</a>
+    <a class="writing-header__author" href="/writing/author" aria-current={isCurrent('/writing/author') ? 'page' : undefined}>写作台</a>
+    <a class="writing-header__new" href="/writing/author?new=1">
+      <span class="writing-header__new-mark" aria-hidden="true">＋</span>
+      <span>新建文本</span>
+    </a>
+    <SectionThemeToggle />
+  </nav>
+</header>

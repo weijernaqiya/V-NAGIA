@@ -1,0 +1,14 @@
+---
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicTrackList from '../../components/music/MusicTrackList.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="曲目" description="ASYMPTOTE 音乐曲目索引。">
+  <div class="music-page-shell">
+    <MusicPageHeading index="09 / TRACK INDEX" title="曲目" description="按单曲浏览音乐资料；播放不会打断当前队列，除非你明确选择。" count={`${catalog.tracks.length} 首`} />
+    <MusicTrackList tracks={catalog.tracks} catalog={catalog} />
+  </div>
+</MusicLayout>

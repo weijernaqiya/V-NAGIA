@@ -1,0 +1,66 @@
+---
+import type { Novel, NovelChapter } from '../../types/writing';
+import { extractWritingTableOfContents } from '../../lib/writing/markdown';
+import { getPublicNovelChapters } from '../../data/writing';
+import MarkdownDocument from './MarkdownDocument.astro';
+import ReadingSettings from './ReadingSettings.astro';
+import TableOfContents from './TableOfContents.astro';
+import WritingSignal from './WritingSignal.astro';
+
+interface Props {
+  novel: Novel;
+  chapter: NovelChapter;
+}
+
+const { novel, chapter } = Astro.props;
+const chapters = getPublicNovelChapters(novel);
+const chapterIndex = chapters.findIndex((item) => item.id === chapter.id);
+const previous = chapterIndex > 0 ? chapters[chapterIndex - 1] : null;
+const next = chapterIndex < chapters.length - 1 ? chapters[chapterIndex + 1] : null;
+const toc = extractWritingTableOfContents(chapter.markdown);
+---
+
+<div
+  class="writing-reader chapter-reader"
+  data-writing-reader
+  data-writing-progress-key={novel.id}
+  data-writing-progress-title={`${novel.title} · ${chapter.label}`}
+>
+  <div class="writing-reader__progress" aria-hidden="true"><i data-reading-progress></i></div>
+
+  <header class="chapter-heading writing-reveal">
+    <p>{novel.titleEn} <span>{novel.title}</span></p>
+    <div class="chapter-heading__number" aria-hidden="true">{String(chapter.number).padStart(2, '0')}</div>
+    <div class="chapter-heading__identity">
+      <span>第 {String(chapter.number).padStart(2, '0')} 章</span>
+      <h1>{chapter.titleEn ?? chapter.title}</h1>
+      {chapter.titleEn && <p lang="zh-CN">{chapter.title}</p>}
+    </div>
+    <WritingSignal className="chapter-heading__signal" label="章节坐标 / 继续趋近" compact />
+    <i aria-hidden="true"></i>
+  </header>
+
+  <div class="writing-reader__layout">
+    <TableOfContents entries={toc} />
+    <MarkdownDocument markdown={chapter.markdown} label={`${chapter.label} ${chapter.title}`} />
+    <ReadingSettings />
+  </div>
+
+  <nav class="chapter-navigation" aria-label="章节导航">
+    {previous ? (
+      <a rel="prev" href={`/writing/fiction/${novel.slug}/${previous.slug}`} data-chapter-previous>
+        <span>上一章</span>
+        <strong>{previous.title}</strong>
+      </a>
+    ) : <span></span>}
+    <a class="chapter-navigation__index" href={`/writing/fiction/${novel.slug}`}>目录</a>
+    {next ? (
+      <a rel="next" href={`/writing/fiction/${novel.slug}/${next.slug}`} data-chapter-next>
+        <span>下一章</span>
+        <strong>{next.title}</strong>
+      </a>
+    ) : <span></span>}
+  </nav>
+</div>
+
+<script src="../../scripts/writing-reader.ts"></script>

@@ -1,0 +1,31 @@
+---
+import type { MusicArtist, MusicCatalog } from '../../types/music';
+
+interface Props {
+  artist: MusicArtist;
+  catalog: MusicCatalog;
+  index: number;
+}
+const { artist, catalog, index } = Astro.props;
+const albumCount = catalog.albums.filter((album) => album.artistIds.includes(artist.id)).length;
+const trackCount = catalog.tracks.filter((track) => track.credits.some((credit) => credit.artistId === artist.id)).length;
+---
+
+<a
+  class="music-artist-card"
+  href={`/music/artist/${artist.slug}`}
+  data-music-catalog-item
+  data-search={`${artist.name} ${artist.genres.join(' ')}`.toLocaleLowerCase()}
+  data-title={artist.name}
+>
+  <span>{String(index + 1).padStart(2, '0')}</span>
+  <div class="music-artist-card__portrait" aria-hidden="true">
+    {artist.portrait ? <img src={artist.portrait} alt="" loading="lazy" /> : <i>{artist.name.slice(0, 1)}</i>}
+  </div>
+  <div>
+    <h2>{artist.name}</h2>
+    <p>{artist.genres.join(' / ') || '未分类'}</p>
+  </div>
+  <small>{albumCount} 张专辑 · {trackCount} 首曲目</small>
+  <b class="music-action-path" aria-hidden="true"></b>
+</a>

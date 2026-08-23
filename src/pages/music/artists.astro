@@ -1,0 +1,22 @@
+---
+import MusicArtistCard from '../../components/music/MusicArtistCard.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="艺人" description="浏览 ASYMPTOTE 音乐资料库中的艺人与创作者。">
+  <div class="music-page-shell">
+    <MusicPageHeading
+      index="03 / ARTIST INDEX"
+      title="艺人"
+      description="只保留与这座私人音乐库有关的作品、Credits 与笔记，不复制百科全书。"
+      count={`${catalog.artists.length} 位艺人`}
+    />
+    <div class="music-artist-list">
+      {catalog.artists.map((artist, index) => <MusicArtistCard artist={artist} catalog={catalog} index={index} />)}
+    </div>
+  </div>
+</MusicLayout>

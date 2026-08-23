@@ -1,0 +1,49 @@
+---
+interface ShelfEntry {
+  id: string;
+  title: string;
+  titleEn?: string;
+  summary: string;
+  meta: string;
+  href: string;
+}
+
+interface Props {
+  id: string;
+  title: string;
+  titleZh: string;
+  entries: readonly ShelfEntry[];
+  emptyText?: string;
+}
+
+const { id, title, titleZh, entries, emptyText = '尚无记录' } = Astro.props;
+---
+
+<section class="writing-shelf" aria-labelledby={`${id}-title`}>
+  <header class="writing-shelf__header">
+    <h2 id={`${id}-title`}>{title}</h2>
+    <p>{titleZh}</p>
+    <span>{entries.length.toString().padStart(2, '0')}</span>
+  </header>
+
+  {entries.length > 0 ? (
+    <ol class="writing-shelf__list">
+      {entries.map((entry, index) => (
+        <li>
+          <a href={entry.href}>
+            <span class="writing-shelf__number">{String(index + 1).padStart(2, '0')}</span>
+            <span class="writing-shelf__identity">
+              <strong>{entry.titleEn ?? entry.title}</strong>
+              {entry.titleEn && <span lang="zh-CN">{entry.title}</span>}
+            </span>
+            <span class="writing-shelf__summary">{entry.summary}</span>
+            <span class="writing-shelf__meta">{entry.meta}</span>
+            <span class="writing-shelf__arrow writing-action-path" aria-hidden="true"></span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="writing-empty-state"><span>尚无记录</span>{emptyText}</p>
+  )}
+</section>

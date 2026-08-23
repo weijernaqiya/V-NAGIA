@@ -1,0 +1,45 @@
+---
+import SiteLayout from './SiteLayout.astro';
+import SectionThemeToggle from '../components/section/SectionThemeToggle.astro';
+import '../styles/section.css';
+
+interface Props {
+  sectionName: string;
+  description: string;
+}
+
+const { sectionName, description } = Astro.props;
+---
+
+<SiteLayout title={`${sectionName} — ASYMPTOTE`} description={description} playerVisible themeColor="#10161b">
+  <Fragment slot="head">
+    <meta property="og:title" content={`${sectionName} — ASYMPTOTE`} />
+    <meta property="og:description" content={description} />
+    <script is:inline>
+      try {
+        const storedTheme = localStorage.getItem('asymptote.section.theme.v1');
+        document.documentElement.dataset.sectionTheme = storedTheme === 'light' ? 'light' : 'dark';
+      } catch {
+        document.documentElement.dataset.sectionTheme = 'dark';
+      }
+    </script>
+  </Fragment>
+
+  <div class="section-site" data-section-site data-section-theme="dark">
+    <header class="section-header">
+      <nav aria-label="当前位置">
+        <a class="section-header__brand" href="/">ASYMPTOTE</a>
+        <span aria-hidden="true">/</span>
+        <span>{sectionName}</span>
+      </nav>
+      <SectionThemeToggle />
+    </header>
+    <main><slot /></main>
+    <footer class="section-footer">
+      <p>ASYMPTOTE <span aria-hidden="true">—</span> 创作档案</p>
+      <p>V. NAGIA · 2026</p>
+    </footer>
+  </div>
+</SiteLayout>
+
+<script src="../scripts/section-theme.ts"></script>

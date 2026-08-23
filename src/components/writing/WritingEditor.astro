@@ -1,0 +1,193 @@
+---
+import type { WritingDraft } from '../../types/writing';
+import DraftRecovery from './DraftRecovery.astro';
+import EditorCommandPalette from './EditorCommandPalette.astro';
+import NovelManager from './NovelManager.astro';
+import RevisionHistory from './RevisionHistory.astro';
+import WritingSignal from './WritingSignal.astro';
+
+interface Props {
+  initialDraft: WritingDraft;
+}
+
+const { initialDraft } = Astro.props;
+const serializedDraft = JSON.stringify(initialDraft).replaceAll('<', '\\u003c');
+---
+
+<section class="writing-studio" data-writing-editor>
+  <header class="writing-studio__heading writing-reveal">
+    <div>
+      <p>作者模式 / 本地工作区</p>
+      <h1>写作台</h1>
+      <span class="writing-studio__subtitle">本地写作工作区</span>
+    </div>
+    <div class="writing-studio__context">
+      <p class="writing-studio__boundary">
+        当前版本只保存到这台设备的浏览器。它不具备服务器身份验证，
+        因此不会修改公网作品，也不会把“前端隐藏按钮”当作安全权限。
+      </p>
+      <WritingSignal label="保存每一次趋近" compact />
+    </div>
+  </header>
+
+  <DraftRecovery />
+
+  <div class="writing-studio__workspace">
+    <aside class="writing-studio__drafts">
+      <header>
+        <div class="writing-studio__draft-heading">
+          <p>草稿</p>
+          <span data-editor-draft-count>00</span>
+        </div>
+        <button type="button" class="writing-control writing-control--create" data-editor-new><span aria-hidden="true">＋</span>新建文本</button>
+      </header>
+      <ol data-editor-draft-list></ol>
+      <p class="writing-studio__local-note">本地存储 / 自动恢复</p>
+    </aside>
+
+    <div class="writing-editor">
+      <header class="writing-editor__document">
+        <label>
+          <span>标题</span>
+          <input type="text" value={initialDraft.title} data-editor-title />
+        </label>
+        <label>
+          <span>副标题</span>
+          <input type="text" value={initialDraft.subtitle} data-editor-subtitle />
+        </label>
+        <div class="writing-editor__metadata">
+          <label>
+            <span>类型</span>
+            <select data-editor-type>
+              <option value="FICTION">长篇小说</option>
+              <option value="SHORT_FICTION">短篇小说</option>
+              <option value="ESSAY" selected>文章</option>
+              <option value="NOTE">札记</option>
+              <option value="WORLD">世界档案</option>
+              <option value="CHARACTER">人物档案</option>
+              <option value="LORE">设定档案</option>
+            </select>
+          </label>
+          <label>
+            <span>状态</span>
+            <select data-editor-status>
+              <option value="DRAFT" selected>草稿</option>
+              <option value="REVIEW">待审阅</option>
+              <option value="PUBLISHED">已发布 — 仅本地</option>
+              <option value="ARCHIVED">已归档</option>
+            </select>
+          </label>
+          <label>
+            <span>可见性</span>
+            <select data-editor-visibility>
+              <option value="PRIVATE" selected>私人</option>
+              <option value="UNLISTED">不公开列出</option>
+              <option value="PUBLIC">公开 — 仅本地</option>
+            </select>
+          </label>
+          <label class="writing-editor__tags">
+            <span>标签</span>
+            <input type="text" value={initialDraft.tags.join(' / ')} data-editor-tags />
+          </label>
+        </div>
+      </header>
+
+      <div class="writing-editor__topbar">
+        <div class="writing-editor__modes" aria-label="编辑器显示模式">
+          <button type="button" data-editor-mode="write" aria-pressed="false">写作</button>
+          <button type="button" data-editor-mode="split" aria-pressed="true">分屏</button>
+          <button type="button" data-editor-mode="preview" aria-pressed="false">预览</button>
+        </div>
+        <div class="writing-editor__tools">
+          <button type="button" data-editor-revisions-open>版本历史</button>
+          <button type="button" data-editor-chapters-open>章节管理</button>
+          <button type="button" data-editor-focus aria-pressed="false">专注模式</button>
+        </div>
+      </div>
+
+      <div class="writing-editor__toolbar" role="toolbar" aria-label="Markdown 格式工具">
+        <button type="button" data-editor-command="heading2" title="二级标题">H2</button>
+        <button type="button" data-editor-command="bold" title="粗体"><strong>B</strong></button>
+        <button type="button" data-editor-command="italic" title="斜体"><em>I</em></button>
+        <button type="button" data-editor-command="strike" title="删除线">删除</button>
+        <button type="button" data-editor-command="inline-code" title="行内代码">行内代码</button>
+        <button type="button" data-editor-command="quote" title="引用">引用</button>
+        <button type="button" data-editor-command="featured-quote" title="摘句">摘句</button>
+        <button type="button" data-editor-command="list" title="列表">列表</button>
+        <button type="button" data-editor-command="ordered-list" title="编号列表">编号</button>
+        <button type="button" data-editor-command="link" title="链接">链接</button>
+        <button type="button" data-editor-command="footnote" title="脚注">脚注¹</button>
+        <button type="button" data-editor-command="margin-note" title="宽屏旁注">旁注</button>
+        <button type="button" data-editor-command="annotation" title="作者批注">批注</button>
+        <button type="button" data-editor-command="code" title="代码块">代码</button>
+        <button type="button" data-editor-command="table" title="表格">表格</button>
+        <button type="button" data-editor-command="divider" title="分隔线">—</button>
+        <button type="button" data-editor-media-open title="插入图片">图片</button>
+        <button type="button" data-editor-command-palette-open title="打开全部写作命令">全部命令</button>
+      </div>
+
+      <div class="writing-editor__panes" data-editor-panes data-mode="split">
+        <section class="writing-editor__write" aria-label="Markdown 编辑区">
+          <textarea
+            spellcheck="true"
+            data-editor-markdown
+            aria-label="Markdown 正文"
+          >{initialDraft.markdown}</textarea>
+        </section>
+        <section class="writing-editor__preview" aria-label="实时预览">
+          <article class="writing-prose" data-editor-preview></article>
+        </section>
+      </div>
+
+      <footer class="writing-editor__footer">
+        <div class="writing-editor__counts">
+          <span><b data-editor-character-count>0</b> 字符</span>
+          <span><b data-editor-word-count>0</b> 字词</span>
+          <span><b data-editor-selection-count>0</b> 已选</span>
+        </div>
+        <p data-editor-save-status data-save-state="saved" aria-live="polite">已保存</p>
+        <div class="writing-editor__actions">
+          <label class="writing-editor__import">
+            导入 MD
+            <input type="file" accept=".md,text/markdown,text/plain" data-editor-import />
+          </label>
+          <button type="button" data-editor-copy>复制 Markdown</button>
+          <button type="button" data-editor-download-markdown>下载 Markdown</button>
+          <button type="button" data-editor-download-text>下载纯文本</button>
+          <button type="button" data-editor-save>保存草稿</button>
+        </div>
+      </footer>
+    </div>
+
+    <aside class="writing-media" data-editor-media aria-hidden="true" inert>
+      <header>
+        <div><p>媒体</p><span>本地媒体库</span></div>
+        <button type="button" data-editor-media-close aria-label="关闭媒体库">关闭</button>
+      </header>
+      <label class="writing-media__drop">
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple data-editor-media-input />
+        <span>拖入 / 粘贴 / 选择图片</span>
+        <small>JPG · PNG · WEBP · GIF / 最大 6 MB</small>
+      </label>
+      <p class="writing-media__status" data-editor-media-status aria-live="polite"></p>
+      <ol class="writing-media__list" data-editor-media-list></ol>
+      <p class="writing-media__boundary">
+        图片仅保存在当前浏览器 IndexedDB。未来接入服务器时将由 MediaRepository 替换，
+        当前上传不会自动成为公网资源。
+      </p>
+    </aside>
+
+    <RevisionHistory />
+    <NovelManager />
+    <EditorCommandPalette />
+  </div>
+
+  <footer class="writing-studio__future">
+    <p>服务器发布 / 身份验证 / 评论</p>
+    <span>版本历史与章节管理已提供本地工作区实现</span>
+  </footer>
+
+  <script is:inline type="application/json" data-editor-initial set:html={serializedDraft}></script>
+</section>
+
+<script src="../../scripts/writing-editor.ts"></script>

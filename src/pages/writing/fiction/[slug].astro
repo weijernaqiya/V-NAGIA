@@ -1,0 +1,57 @@
+---
+import NovelOutline from '../../../components/writing/NovelOutline.astro';
+import { NOVELS, NOVEL_STATUS_LABELS, formatWritingDate, getPublicNovelChapters } from '../../../data/writing';
+import { getNovelWordCount } from '../../../lib/writing/repositories';
+import WritingLayout from '../../../layouts/WritingLayout.astro';
+import type { Novel } from '../../../types/writing';
+
+export function getStaticPaths() {
+  return NOVELS.filter((novel) => novel.visibility === 'PUBLIC').map((novel) => ({
+    params: { slug: novel.slug },
+    props: { novel },
+  }));
+}
+
+interface Props { novel: Novel }
+const { novel } = Astro.props;
+const chapters = getPublicNovelChapters(novel);
+---
+
+<WritingLayout title={`${novel.title} / ${novel.titleEn}`} description={novel.summary} sectionLabel="小说">
+  <article class="novel-page">
+    <header class="novel-hero writing-reveal">
+      <div class="novel-hero__field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p class="novel-hero__type">长篇小说 / 作品档案 001</p>
+      <h1><span>{novel.titleEn}</span><strong>{novel.title}</strong></h1>
+      {novel.subtitle && <p class="novel-hero__subtitle">{novel.subtitle}</p>}
+      <p class="novel-hero__summary">{novel.summary}</p>
+      <dl class="novel-hero__meta">
+        <div><dt>状态</dt><dd>{NOVEL_STATUS_LABELS[novel.status]}</dd></div>
+        <div><dt>章节</dt><dd>{chapters.length.toString().padStart(2, '0')}</dd></div>
+        <div><dt>字数</dt><dd>{getNovelWordCount(novel).toLocaleString('zh-CN')}</dd></div>
+        <div><dt>更新于</dt><dd>{formatWritingDate(novel.updatedAt)}</dd></div>
+      </dl>
+      <a
+        class="novel-hero__continue"
+        href={`/writing/fiction/${novel.slug}/${chapters[0]?.slug ?? ''}`}
+        data-writing-continue={novel.id}
+      >
+        <span data-writing-continue-label>开始阅读</span>
+        <b aria-hidden="true">→</b>
+      </a>
+    </header>
+
+    <NovelOutline novel={novel} />
+
+    {novel.relatedContent.length > 0 && (
+      <aside class="writing-related">
+        <p>相关档案</p>
+        <ul>{novel.relatedContent.map((item) => <li><a href={item.href}>{item.title}<b aria-hidden="true">→</b></a></li>)}</ul>
+      </aside>
+    )}
+
+    <p class="novel-copyright">{novel.copyright}</p>
+  </article>
+</WritingLayout>
+
+<script src="../../../scripts/writing-reader.ts"></script>

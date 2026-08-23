@@ -1,0 +1,24 @@
+---
+interface Props {
+  label: string;
+  className?: string;
+  compact?: boolean;
+}
+
+const { label, className, compact = false } = Astro.props;
+---
+
+<!--
+  WRITING 的“趋近轨迹”标识。
+
+  曲线末端的实心点会接近极限点，却始终保留一小段距离；它用柔和曲线
+  取代尖锐箭头，作为首页、阅读页与写作台共享的辅助视觉语言。
+-->
+<span class:list={['writing-signal', className, { 'writing-signal--compact': compact }]} aria-hidden="true">
+  <span class="writing-signal__label">{label}</span>
+  <svg class="writing-signal__path" viewBox="0 0 116 28" focusable="false">
+    <path d="M2 20 C31 20 51 9 91 9" pathLength="1"></path>
+    <circle class="writing-signal__approach" cx="98" cy="9" r="2.15"></circle>
+    <circle class="writing-signal__limit" cx="111" cy="9" r="1.15"></circle>
+  </svg>
+</span>

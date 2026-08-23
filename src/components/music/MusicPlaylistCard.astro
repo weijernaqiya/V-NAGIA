@@ -1,0 +1,35 @@
+---
+import type { MusicCatalog, MusicPlaylist } from '../../types/music';
+import MusicArtwork from './MusicArtwork.astro';
+
+interface Props {
+  playlist: MusicPlaylist;
+  catalog: MusicCatalog;
+  index: number;
+}
+const { playlist, catalog, index } = Astro.props;
+const playableTrackIds = playlist.trackIds.filter((id) => catalog.tracks.find((track) => track.id === id)?.audio);
+---
+
+<article class="music-playlist-card">
+  <MusicArtwork
+    title={playlist.title}
+    artwork={playlist.artwork}
+    accent="#94aeb9"
+    href={`/music/playlist/${playlist.slug}`}
+    label="PLAYLIST / NO ARTWORK"
+  />
+  <div>
+    <p>{String(index + 1).padStart(2, '0')} / 歌单</p>
+    <h2><a href={`/music/playlist/${playlist.slug}`}>{playlist.title}</a></h2>
+    <p>{playlist.description}</p>
+    <span>{playlist.trackIds.length} 首曲目 · 更新于 {playlist.updatedAt}</span>
+    {playableTrackIds.length > 0 && (
+      <button
+        type="button"
+        data-music-play-collection={JSON.stringify(playableTrackIds)}
+        data-queue-source="playlist"
+      >播放歌单 <b class="music-action-path" aria-hidden="true"></b></button>
+    )}
+  </div>
+</article>

@@ -1,0 +1,37 @@
+<dialog class="writing-command-palette" data-editor-command-palette aria-labelledby="command-palette-title">
+  <header>
+    <p id="command-palette-title">写作命令</p>
+    <button type="button" data-editor-command-palette-close aria-label="关闭命令面板">关闭</button>
+  </header>
+  <label>
+    <span class="visually-hidden">筛选写作命令</span>
+    <input type="search" autocomplete="off" placeholder="输入命令名称……" data-editor-command-search />
+  </label>
+  <ol data-editor-command-list>
+    <li><button type="button" data-editor-command="heading1"><span>一级标题</span><small>#</small></button></li>
+    <li><button type="button" data-editor-command="heading2"><span>二级标题</span><small>##</small></button></li>
+    <li><button type="button" data-editor-command="heading3"><span>三级标题</span><small>###</small></button></li>
+    <li><button type="button" data-editor-command="heading4"><span>四级标题</span><small>####</small></button></li>
+    <li><button type="button" data-editor-command="heading5"><span>五级标题</span><small>#####</small></button></li>
+    <li><button type="button" data-editor-command="heading6"><span>六级标题</span><small>######</small></button></li>
+    <li><button type="button" data-editor-command="bold"><span>粗体</span><small>Ctrl+B</small></button></li>
+    <li><button type="button" data-editor-command="italic"><span>斜体</span><small>Ctrl+I</small></button></li>
+    <li><button type="button" data-editor-command="strike"><span>删除线</span><small>~~</small></button></li>
+    <li><button type="button" data-editor-command="inline-code"><span>行内代码</span><small>`</small></button></li>
+    <li><button type="button" data-editor-command="quote"><span>普通引用</span><small>&gt;</small></button></li>
+    <li><button type="button" data-editor-command="featured-quote"><span>文学摘句</span><small>摘句</small></button></li>
+    <li><button type="button" data-editor-command="list"><span>无序列表</span><small>—</small></button></li>
+    <li><button type="button" data-editor-command="ordered-list"><span>编号列表</span><small>01</small></button></li>
+    <li><button type="button" data-editor-command="link"><span>链接</span><small>↗</small></button></li>
+    <li><button type="button" data-editor-command="footnote"><span>脚注</span><small>¹</small></button></li>
+    <li><button type="button" data-editor-command="margin-note"><span>宽屏旁注</span><small>※</small></button></li>
+    <li><button type="button" data-editor-command="annotation"><span>作者批注</span><small>批注</small></button></li>
+    <li><button type="button" data-editor-command="superscript"><span>上标</span><small>x²</small></button></li>
+    <li><button type="button" data-editor-command="subscript"><span>下标</span><small>x₂</small></button></li>
+    <li><button type="button" data-editor-command="table"><span>表格</span><small>表</small></button></li>
+    <li><button type="button" data-editor-command="code"><span>代码块</span><small>```</small></button></li>
+    <li><button type="button" data-editor-command="divider"><span>章节分隔线</span><small>—</small></button></li>
+    <li><button type="button" data-editor-media-command><span>插入图片</span><small>图</small></button></li>
+  </ol>
+  <footer><span>↑ ↓ 选择</span><span>Enter 执行</span><span>Esc 关闭</span></footer>
+</dialog>

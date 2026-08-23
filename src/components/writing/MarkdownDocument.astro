@@ -1,0 +1,13 @@
+---
+import { renderWritingMarkdown } from '../../lib/writing/markdown';
+
+interface Props {
+  markdown: string;
+  label?: string;
+}
+
+const { markdown, label = '正文' } = Astro.props;
+const html = renderWritingMarkdown(markdown);
+---
+
+<article class="writing-prose" data-reading-surface aria-label={label} set:html={html}></article>

@@ -142,6 +142,39 @@ button {
   filter: blur(3px);
 }
 
+/* 标题页仍保持纯白；世界切面采用深色时，仅在过渡开始后反转 Logo。 */
+.title-screen[data-fragment-theme="dark"]:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"],
+    [data-screen-state="returning"]
+  ) .logo__fill {
+  fill: #d9dddc;
+}
+
+.title-screen[data-fragment-theme="dark"]:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"],
+    [data-screen-state="returning"]
+  ) :is(.logo__approach-line, .logo__approach-arrow) {
+  stroke: #c1c9cc;
+}
+
+.title-screen[data-fragment-theme="dark"]:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"],
+    [data-screen-state="returning"]
+  ) :is(.logo__trace, .logo__pretrace, .logo__limit) {
+  stroke: #9eacb2;
+}
+
+.title-screen[data-fragment-theme="dark"]:is(
+    [data-screen-state="transitioning"],
+    [data-screen-state="fragments"],
+    [data-screen-state="returning"]
+  ) .title-credit {
+  color: #b2bcc0;
+}
+
 .artwork__primary-lines,
 .artwork__secondary-lines {
   transform-box: fill-box;

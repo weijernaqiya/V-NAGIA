@@ -1,0 +1,40 @@
+---
+import MusicArtwork from '../../../components/music/MusicArtwork.astro';
+import MusicTrackList from '../../../components/music/MusicTrackList.astro';
+import { getPlaylistTracks } from '../../../lib/music/catalog';
+import { staticMusicRepository } from '../../../lib/music/repositories';
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+import type { MusicPlaylist } from '../../../types/music';
+
+export function getStaticPaths() {
+  const catalog = staticMusicRepository.getCatalog();
+  return catalog.playlists.map((playlist) => ({ params: { slug: playlist.slug }, props: { playlist } }));
+}
+
+interface Props { playlist: MusicPlaylist }
+const { playlist } = Astro.props;
+const catalog = staticMusicRepository.getCatalog();
+const tracks = getPlaylistTracks(catalog, playlist.trackIds);
+const playable = tracks.filter((track) => track.audio).map((track) => track.id);
+---
+
+<MusicLayout title={playlist.title} description={playlist.description}>
+  <article class="music-playlist-page music-page-shell music-reveal">
+    <header class="music-playlist-page__hero">
+      <MusicArtwork title={playlist.title} artwork={playlist.artwork} label="PLAYLIST / NO ARTWORK" />
+      <div>
+        <p>歌单 / {playlist.visibility === 'public' ? '公开' : '私人'}</p>
+        <h1>{playlist.title}</h1>
+        <p>{playlist.description}</p>
+        <span>{tracks.length} 首曲目 · 更新于 {playlist.updatedAt}</span>
+        <button
+          type="button"
+          data-music-play-collection={JSON.stringify(playable)}
+          data-queue-source="playlist"
+          disabled={playable.length === 0}
+        >播放歌单 <b class="music-action-path" aria-hidden="true"></b></button>
+      </div>
+    </header>
+    <MusicTrackList tracks={tracks} catalog={catalog} source="playlist" />
+  </article>
+</MusicLayout>

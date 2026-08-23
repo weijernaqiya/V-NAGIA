@@ -1,0 +1,19 @@
+---
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import { getCatalogGenres } from '../../lib/music/catalog';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+const catalog = staticMusicRepository.getCatalog();
+const genres = getCatalogGenres(catalog);
+---
+
+<MusicLayout title="流派" description="ASYMPTOTE 音乐资料库流派索引。">
+  <div class="music-page-shell">
+    <MusicPageHeading index="10 / GENRES" title="流派" description="使用文字与数量建立索引，不用彩色标签把音乐切成廉价分类。" count={`${genres.length} 个流派`} />
+    <ol class="music-taxonomy-list">
+      {genres.map((genre, index) => (
+        <li><span>{String(index + 1).padStart(2, '0')}</span><h2>{genre}</h2><small>{catalog.tracks.filter((track) => track.genres.includes(genre)).length} 首曲目</small></li>
+      ))}
+    </ol>
+  </div>
+</MusicLayout>

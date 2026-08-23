@@ -1,0 +1,19 @@
+---
+import SectionLanding from '../components/section/SectionLanding.astro';
+import { CREATIVE_SECTIONS, type CreativeSection } from '../config/sections';
+import CreativeSectionLayout from '../layouts/CreativeSectionLayout.astro';
+
+export function getStaticPaths() {
+  return CREATIVE_SECTIONS.map((section) => ({
+    params: { section: section.id },
+    props: { section },
+  }));
+}
+
+interface Props { section: CreativeSection }
+const { section } = Astro.props;
+---
+
+<CreativeSectionLayout sectionName={section.name} description={section.description}>
+  <SectionLanding section={section} />
+</CreativeSectionLayout>

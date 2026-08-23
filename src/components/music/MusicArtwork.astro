@@ -1,0 +1,37 @@
+---
+interface Props {
+  title: string;
+  artwork: string | null;
+  accent?: string;
+  href?: string;
+  label?: string;
+  class?: string;
+}
+
+const {
+  title,
+  artwork,
+  accent = '#8da9b6',
+  href,
+  label = 'MUSIC / NO ARTWORK',
+  class: className = '',
+} = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  class:list={['music-artwork', className]}
+  href={href}
+  style={`--music-art-accent: ${accent}`}
+  aria-label={href ? `打开 ${title}` : undefined}
+>
+  {artwork ? (
+    <img src={artwork} alt={`${title} 封面`} loading="lazy" />
+  ) : (
+    <span class="music-artwork__fallback" aria-label={`${title}，没有封面`}>
+      <i aria-hidden="true"></i>
+      <b>{title}</b>
+      <small>{label}</small>
+    </span>
+  )}
+</Tag>

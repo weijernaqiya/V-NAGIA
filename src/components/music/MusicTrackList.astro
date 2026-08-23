@@ -1,0 +1,99 @@
+---
+import {
+  formatTrackDuration,
+  getTrackAlbum,
+  getTrackArtist,
+} from '../../lib/music/catalog';
+import type { CatalogTrack, MusicCatalog } from '../../types/music';
+
+interface Props {
+  tracks: readonly CatalogTrack[];
+  catalog: MusicCatalog;
+  source?: 'album' | 'playlist' | 'search' | 'manual' | 'title';
+  compact?: boolean;
+  filterable?: boolean;
+  showAlbum?: boolean;
+  emptyLabel?: string;
+}
+
+const {
+  tracks,
+  catalog,
+  source = 'manual',
+  compact = false,
+  filterable = false,
+  showAlbum = true,
+  emptyLabel = '没有符合当前条件的曲目。',
+} = Astro.props;
+const queue = JSON.stringify(tracks.map((track) => track.id));
+---
+
+<div
+  class:list={['music-track-list', { 'music-track-list--compact': compact }]}
+  data-music-track-list
+  data-queue-source={source}
+  data-queue={queue}
+>
+  <ol>
+    {tracks.map((track, index) => {
+      const artist = getTrackArtist(catalog, track);
+      const album = getTrackAlbum(catalog, track);
+      const searchable = [track.title, artist?.name, album?.title, track.genres.join(' ')]
+        .filter(Boolean)
+        .join(' ')
+        .toLocaleLowerCase();
+      return (
+        <li
+          data-music-catalog-item={filterable ? '' : undefined}
+          data-track-id={track.id}
+          data-search={searchable}
+          data-genre={track.genres.join('|')}
+          data-format={track.audio?.format ?? 'NO AUDIO'}
+          data-year={track.year ?? 0}
+          data-added={track.addedAt}
+          data-title={track.title}
+          data-artist={artist?.name ?? ''}
+          data-favorite-default={String(track.favorite)}
+        >
+          <span class="music-track-list__number">
+            {String(track.trackNumber ?? index + 1).padStart(2, '0')}
+          </span>
+          <button
+            class="music-track-list__play"
+            type="button"
+            data-music-play-track={track.id}
+            aria-label={`播放 ${track.title}`}
+            disabled={!track.audio}
+          >
+            <span aria-hidden="true">▶</span>
+          </button>
+          <a class="music-track-list__identity" href={`/music/track/${track.slug}`}>
+            <strong>{track.title}</strong>
+            <small>{artist?.name ?? '未知艺术家'}</small>
+          </a>
+          {showAlbum && (
+            album
+              ? <a class="music-track-list__album" href={`/music/album/${album.slug}`}>{album.title}</a>
+              : <span class="music-track-list__album">单曲</span>
+          )}
+          <span class="music-track-list__quality">
+            {track.audio ? `${track.audio.format}${track.audio.lossless ? ' · LOSSLESS' : ''}` : '仅资料'}
+          </span>
+          <time>{formatTrackDuration(track.duration)}</time>
+          <div class="music-track-list__actions">
+            <button
+              type="button"
+              data-music-favorite={track.id}
+              data-default-favorite={String(track.favorite)}
+              aria-label={`收藏 ${track.title}`}
+              aria-pressed="false"
+            ><span aria-hidden="true">◇</span></button>
+            <button type="button" data-music-play-next={track.id} aria-label={`下一首播放 ${track.title}`} disabled={!track.audio}>下一首</button>
+            <button type="button" data-music-add-queue={track.id} aria-label={`将 ${track.title} 加入队列`} disabled={!track.audio}>入队</button>
+          </div>
+        </li>
+      );
+    })}
+  </ol>
+  <p class="music-track-list__empty" data-music-filter-empty hidden>{emptyLabel}</p>
+</div>

@@ -1,0 +1,76 @@
+---
+import type { WritingArticle } from '../../types/writing';
+import { extractWritingTableOfContents } from '../../lib/writing/markdown';
+import { formatWritingDate, getWritingContentHref } from '../../data/writing';
+import MarkdownDocument from './MarkdownDocument.astro';
+import ReadingSettings from './ReadingSettings.astro';
+import TableOfContents from './TableOfContents.astro';
+import WritingSignal from './WritingSignal.astro';
+
+interface Props {
+  article: WritingArticle;
+}
+
+const { article } = Astro.props;
+const toc = extractWritingTableOfContents(article.markdown);
+const typeLabels: Record<WritingArticle['type'], string> = {
+  SHORT_FICTION: '短篇小说',
+  ESSAY: '文章',
+  NOTE: '札记',
+  WORLD: '世界档案',
+  CHARACTER: '人物档案',
+  LORE: '设定档案',
+};
+---
+
+<div
+  class="writing-reader"
+  data-writing-reader
+  data-writing-progress-key={article.id}
+  data-writing-progress-title={article.title}
+>
+  <div class="writing-reader__progress" aria-hidden="true"><i data-reading-progress></i></div>
+
+  <header class="article-heading writing-reveal">
+    <p class="article-heading__type">{typeLabels[article.type]}</p>
+    <h1>
+      {article.titleEn && <span>{article.titleEn}</span>}
+      <strong>{article.title}</strong>
+    </h1>
+    {article.subtitle && <p class="article-heading__subtitle">{article.subtitle}</p>}
+    <p class="article-heading__summary">{article.summary}</p>
+    <WritingSignal className="article-heading__signal" label="阅读坐标 / 正文向前" compact />
+    <dl class="article-heading__meta">
+      <div><dt>发布于</dt><dd>{formatWritingDate(article.publishedAt)}</dd></div>
+      <div><dt>更新于</dt><dd>{formatWritingDate(article.updatedAt)}</dd></div>
+      <div><dt>篇幅</dt><dd>{article.wordCount.toLocaleString('zh-CN')} 字</dd></div>
+      <div><dt>阅读时间</dt><dd>约 {article.readingTime} 分钟</dd></div>
+    </dl>
+    <p class="article-heading__tags">{article.tags.join(' / ')}</p>
+  </header>
+
+  <div class="writing-reader__layout">
+    <TableOfContents entries={toc} />
+    <MarkdownDocument markdown={article.markdown} label={article.title} />
+    <ReadingSettings />
+  </div>
+
+  {article.relatedContent.length > 0 && (
+    <aside class="writing-related" aria-labelledby="related-title">
+      <p id="related-title">相关内容</p>
+      <ul>
+        {article.relatedContent.map((item) => (
+          <li><a href={item.href}><span>{item.section}</span>{item.title}<b class="writing-action-path" aria-hidden="true"></b></a></li>
+        ))}
+      </ul>
+    </aside>
+  )}
+
+  <footer class="article-ending">
+    <span>本篇完</span>
+    <a href="/writing">返回写作档案</a>
+    <a href={getWritingContentHref(article)} aria-current="page" class="visually-hidden">当前文章</a>
+  </footer>
+</div>
+
+<script src="../../scripts/writing-reader.ts"></script>

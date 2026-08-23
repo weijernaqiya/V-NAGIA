@@ -1,0 +1,11 @@
+---
+import MusicHome from '../../components/music/MusicHome.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="音乐" description="ASYMPTOTE 音乐播放器、私人唱片馆、CD 档案与聆听记录。">
+  <MusicHome catalog={catalog} />
+</MusicLayout>

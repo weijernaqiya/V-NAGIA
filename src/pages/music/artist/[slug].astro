@@ -1,0 +1,58 @@
+---
+import MusicAlbumCard from '../../../components/music/MusicAlbumCard.astro';
+import MusicTrackList from '../../../components/music/MusicTrackList.astro';
+import { getArtistAlbums, getArtistTracks } from '../../../lib/music/catalog';
+import { staticMusicRepository } from '../../../lib/music/repositories';
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+import type { MusicArtist } from '../../../types/music';
+
+export function getStaticPaths() {
+  const catalog = staticMusicRepository.getCatalog();
+  return catalog.artists.map((artist) => ({ params: { slug: artist.slug }, props: { artist } }));
+}
+
+interface Props { artist: MusicArtist }
+const { artist } = Astro.props;
+const catalog = staticMusicRepository.getCatalog();
+const albums = getArtistAlbums(catalog, artist.id);
+const tracks = getArtistTracks(catalog, artist.id);
+const playable = tracks.filter((track) => track.audio).map((track) => track.id);
+---
+
+<MusicLayout title={artist.name} description={artist.note ?? `${artist.name} 艺人档案。`}>
+  <article class="music-artist-page music-page-shell music-reveal">
+    <header class="music-artist-page__hero">
+      <p>艺人档案 / {artist.years ?? '—'}</p>
+      <div class="music-artist-page__mark" aria-hidden="true">
+        {artist.portrait ? <img src={artist.portrait} alt="" /> : <span>{artist.name.slice(0, 1)}</span>}
+      </div>
+      <h1>{artist.name}</h1>
+      <p>{artist.note}</p>
+      <dl>
+        <div><dt>地区</dt><dd>{artist.country ?? '—'}</dd></div>
+        <div><dt>流派</dt><dd>{artist.genres.join(' / ') || '—'}</dd></div>
+        <div><dt>专辑</dt><dd>{albums.length}</dd></div>
+        <div><dt>曲目</dt><dd>{tracks.length}</dd></div>
+      </dl>
+      <button
+        type="button"
+        data-music-play-collection={JSON.stringify(playable)}
+        data-queue-source="manual"
+        disabled={playable.length === 0}
+      >播放全部 <b class="music-action-path" aria-hidden="true"></b></button>
+      <span class="music-approach-line" aria-hidden="true"><i></i></span>
+    </header>
+
+    <section class="music-artist-page__albums">
+      <header class="music-section-heading"><p>01</p><h2>专辑</h2><span>{albums.length}</span></header>
+      <div class="music-album-grid">
+        {albums.map((album, index) => <MusicAlbumCard album={album} catalog={catalog} index={index} />)}
+      </div>
+    </section>
+
+    <section class="music-artist-page__tracks">
+      <header class="music-section-heading"><p>02</p><h2>曲目</h2><span>{tracks.length}</span></header>
+      <MusicTrackList tracks={tracks} catalog={catalog} compact />
+    </section>
+  </article>
+</MusicLayout>

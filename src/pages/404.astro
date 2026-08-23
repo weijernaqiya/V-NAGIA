@@ -1,0 +1,23 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import '../styles/writing.css';
+---
+
+<SiteLayout title="404 — ASYMPTOTE" description="页面未抵达。">
+  <div class="writing-site">
+    <header class="writing-header">
+      <nav class="writing-header__path" aria-label="当前位置">
+        <a class="writing-header__brand" href="/">ASYMPTOTE</a>
+        <span class="writing-header__slash" aria-hidden="true">/</span>
+        <span class="writing-header__current">404</span>
+      </nav>
+    </header>
+    <main class="writing-error-page">
+      <p>未解析的坐标</p>
+      <h1>404</h1>
+      <h2>此页面未能抵达。</h2>
+      <p>页面未抵达。</p>
+      <a href="/">返回 ASYMPTOTE <span aria-hidden="true">→</span></a>
+    </main>
+  </div>
+</SiteLayout>

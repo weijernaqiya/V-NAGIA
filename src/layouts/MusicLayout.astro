@@ -1,0 +1,68 @@
+---
+import MusicHeader from '../components/music/MusicHeader.astro';
+import { MUSIC_CATALOG } from '../data/music';
+import SiteLayout from './SiteLayout.astro';
+import '../styles/music.css';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const pageTitle = title === '音乐' ? '音乐 — ASYMPTOTE' : `${title} — 音乐 / ASYMPTOTE`;
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const clientCatalog = MUSIC_CATALOG.tracks.map((track) => {
+  const artist = MUSIC_CATALOG.artists.find((item) => item.id === track.primaryArtistId);
+  const album = track.albumId
+    ? MUSIC_CATALOG.albums.find((item) => item.id === track.albumId)
+    : null;
+  return {
+    id: track.id,
+    slug: track.slug,
+    title: track.title,
+    artist: artist?.name ?? '未知艺术家',
+    album: album?.title ?? '单曲',
+    albumSlug: album?.slug ?? null,
+    format: track.audio?.format ?? null,
+    favorite: track.favorite,
+  };
+});
+const serializedCatalog = JSON.stringify(clientCatalog).replaceAll('<', '\\u003c');
+---
+
+<SiteLayout title={pageTitle} description={description} playerVisible themeColor="#0d151a">
+  <Fragment slot="head">
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={new URL(Astro.url.pathname, 'https://vnagia.com')} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <script is:inline>
+      try {
+        const storedTheme = localStorage.getItem('asymptote.section.theme.v1');
+        document.documentElement.dataset.sectionTheme = storedTheme === 'light' ? 'light' : 'dark';
+      } catch {
+        document.documentElement.dataset.sectionTheme = 'dark';
+      }
+    </script>
+  </Fragment>
+
+  <div class="music-site" data-music-site data-section-site data-section-theme="dark">
+    <a class="music-skip-link" href="#music-main">跳到主要内容</a>
+    <MusicHeader currentPath={currentPath} />
+    <main id="music-main" class="music-main">
+      <slot />
+    </main>
+    <footer class="music-footer">
+      <p>ASYMPTOTE <span aria-hidden="true">—</span> 音乐档案</p>
+      <p>播放器状态跨页面保留 · V. NAGIA · 2026</p>
+    </footer>
+    <script is:inline type="application/json" data-music-client-catalog set:html={serializedCatalog}></script>
+  </div>
+</SiteLayout>
+
+<script src="../scripts/section-theme.ts"></script>
+<script src="../scripts/music-page.ts"></script>
+<script src="../scripts/music-playlists.ts"></script>

@@ -1,0 +1,78 @@
+---
+import MusicArtwork from '../../../components/music/MusicArtwork.astro';
+import MusicTrackList from '../../../components/music/MusicTrackList.astro';
+import { getAlbumTracks } from '../../../lib/music/catalog';
+import { staticMusicRepository } from '../../../lib/music/repositories';
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+import type { MusicAlbum } from '../../../types/music';
+
+export function getStaticPaths() {
+  const catalog = staticMusicRepository.getCatalog();
+  return catalog.albums.map((album) => ({ params: { slug: album.slug }, props: { album } }));
+}
+
+interface Props { album: MusicAlbum }
+const { album } = Astro.props;
+const catalog = staticMusicRepository.getCatalog();
+const tracks = getAlbumTracks(catalog, album.id);
+const artists = album.artistIds
+  .map((id) => catalog.artists.find((artist) => artist.id === id))
+  .filter((artist) => artist !== undefined);
+const playableTrackIds = tracks.filter((track) => track.audio).map((track) => track.id);
+const discs = [...new Set(tracks.map((track) => track.discNumber))];
+---
+
+<MusicLayout title={album.title} description={album.note ?? `${album.title} 专辑档案。`}>
+  <article class="music-album-page music-reveal">
+    <header class="music-album-page__hero" style={`--album-accent: ${album.accent}`}>
+      <MusicArtwork title={album.title} artwork={album.artwork} accent={album.accent} class="music-album-page__artwork" />
+      <div class="music-album-page__identity">
+        <p>专辑档案 / {album.albumType}</p>
+        <h1>{album.title}</h1>
+        {album.subtitle && <p class="music-album-page__subtitle">{album.subtitle}</p>}
+        <p class="music-album-page__artists">
+          {artists.map((artist, index) => (
+            <><a href={`/music/artist/${artist.slug}`}>{artist.name}</a>{index < artists.length - 1 && ' / '}</>
+          ))}
+        </p>
+        <dl>
+          <div><dt>年份</dt><dd>{album.year ?? '—'}</dd></div>
+          <div><dt>版本</dt><dd>{album.edition ?? '默认版本'}</dd></div>
+          <div><dt>曲目</dt><dd>{tracks.length}</dd></div>
+          <div><dt>可播放</dt><dd>{playableTrackIds.length}</dd></div>
+          {album.label && <div><dt>厂牌</dt><dd>{album.label}</dd></div>}
+        </dl>
+        {album.note && <p class="music-album-page__note">{album.note}</p>}
+        <div class="music-album-page__actions">
+          <button
+            type="button"
+            data-music-play-collection={JSON.stringify(playableTrackIds)}
+            data-queue-source="album"
+            disabled={playableTrackIds.length === 0}
+          >按曲序播放 <b class="music-action-path" aria-hidden="true"></b></button>
+          <a href="/music/albums">返回专辑档案</a>
+        </div>
+      </div>
+      <span class="music-album-page__line" aria-hidden="true"><i></i></span>
+    </header>
+
+    <section class="music-album-page__tracks">
+      <header class="music-section-heading">
+        <p>曲序</p>
+        <h2>音轨</h2>
+        <span>{discs.length > 1 ? `${discs.length} DISC` : 'DISC 01'}</span>
+      </header>
+      {discs.map((disc) => (
+        <div class="music-disc-group">
+          {discs.length > 1 && <p>DISC {String(disc).padStart(2, '0')}</p>}
+          <MusicTrackList
+            tracks={tracks.filter((track) => track.discNumber === disc)}
+            catalog={catalog}
+            source="album"
+            showAlbum={false}
+          />
+        </div>
+      ))}
+    </section>
+  </article>
+</MusicLayout>

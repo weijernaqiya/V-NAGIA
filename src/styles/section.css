@@ -1,0 +1,123 @@
+:root {
+  --section-song: "Songti SC", STSong, "Noto Serif CJK SC", SimSun, serif;
+  --section-sans: Inter, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:has(.section-site),
+body:has(.section-site) {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #10161b;
+}
+
+.section-site {
+  --section-bg: #10161b;
+  --section-surface: #171e24;
+  --section-ink: #d9dcda;
+  --section-muted: #929da1;
+  --section-faint: #637077;
+  --section-line: rgb(184 202 210 / 17%);
+  --section-accent: #93aebb;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--section-bg);
+  color: var(--section-ink);
+  font-family: var(--section-sans);
+  transition: color 320ms ease, background-color 320ms ease;
+}
+
+.section-site[data-section-theme="light"],
+html[data-section-theme="light"] .section-site {
+  --section-bg: #f8f8f5;
+  --section-surface: #eef1f1;
+  --section-ink: #273039;
+  --section-muted: #727d83;
+  --section-faint: #9aa3a7;
+  --section-line: rgb(83 103 113 / 18%);
+  --section-accent: #839eac;
+  color-scheme: light;
+}
+
+.section-site[data-section-theme="dark"],
+html[data-section-theme="dark"] .section-site { color-scheme: dark; }
+html[data-section-theme="light"] body:has(.section-site) { background: #f8f8f5; }
+
+.section-site *,
+.section-site *::before,
+.section-site *::after { box-sizing: border-box; }
+.section-site a { color: inherit; text-decoration: none; }
+.section-site button { font: inherit; }
+.section-site :focus-visible { outline: 1px solid var(--section-accent); outline-offset: 5px; }
+
+.section-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 5rem;
+  padding: 0 4.2vw;
+  border-bottom: 1px solid var(--section-line);
+  background: color-mix(in srgb, var(--section-bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.section-header nav { display: flex; align-items: center; gap: 1rem; color: var(--section-muted); font-size: 0.58rem; letter-spacing: 0.22em; }
+.section-header__brand { color: var(--section-ink) !important; font-family: Didot, "Bodoni MT", serif; font-size: 0.76rem; letter-spacing: 0.14em; }
+.section-header .section-theme-toggle { display: inline-flex; align-items: center; gap: 0.65rem; padding: 0; border: 0; background: transparent; color: var(--section-muted); font-size: 0.48rem; letter-spacing: 0.12em; cursor: pointer; }
+/*
+ * 明暗按键沿用“渐近”母题：菱形沿线趋近右端极限，但始终保留一小段距离。
+ * 它仍是真正的 button，几何图形只负责状态反馈，不替代中文标签。
+ */
+.section-header .section-theme-toggle i { position: relative; display: block; width: 2.9rem; height: 0.82rem; border-right: 1px solid currentColor; opacity: 0.72; }
+.section-header .section-theme-toggle i::before { position: absolute; top: 50%; left: 0; width: calc(100% - 0.48rem); height: 1px; background: currentColor; content: ""; transform: translateY(-50%); transition: width 320ms cubic-bezier(0.22, 0.68, 0.28, 1); }
+.section-header .section-theme-toggle i::after { position: absolute; top: 50%; left: 0; width: 0.34rem; height: 0.34rem; border: 1px solid currentColor; background: var(--section-bg); content: ""; transform: translate3d(1.95rem, -50%, 0) rotate(45deg); transition: background-color 320ms ease, transform 320ms cubic-bezier(0.22, 0.68, 0.28, 1); }
+.section-header .section-theme-toggle[aria-pressed="false"] i::after { transform: translate3d(0.18rem, -50%, 0) rotate(45deg); }
+.section-header .section-theme-toggle:hover i::before,
+.section-header .section-theme-toggle:focus-visible i::before { width: calc(100% - 0.3rem); }
+
+.section-landing {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: calc(100svh - 5rem);
+  padding: 8vw;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.section-landing__lines { position: absolute; z-index: -1; inset: 0; }
+.section-landing__lines i { position: absolute; left: 38%; width: 78vw; height: 1px; background: var(--section-line); transform-origin: left center; }
+.section-landing__lines i:nth-child(1) { top: 24%; transform: rotate(18deg); }
+.section-landing__lines i:nth-child(2) { top: 57%; transform: rotate(-7deg); }
+.section-landing__lines i:nth-child(3) { top: 79%; transform: rotate(-36deg); }
+.section-landing__index { margin: 0 0 3rem; color: var(--section-muted); font-size: 0.5rem; letter-spacing: 0.26em; }
+.section-landing h1 { margin: 0; font-family: var(--section-song); font-size: clamp(7rem, 18vw, 17rem); font-weight: 400; letter-spacing: 0.18em; line-height: 0.7; }
+.section-landing__description { max-width: 34rem; margin: 4rem 0 0; color: var(--section-muted); font-family: var(--section-song); font-size: 0.88rem; letter-spacing: 0.08em; line-height: 2; }
+.section-landing ul { display: flex; gap: 2rem; padding: 0; margin: 2rem 0 0; color: var(--section-faint); font-size: 0.5rem; letter-spacing: 0.18em; list-style: none; }
+.section-landing__state { position: absolute; right: 7vw; bottom: 5rem; display: flex; align-items: center; gap: 1rem; margin: 0; color: var(--section-muted); font-size: 0.52rem; letter-spacing: 0.18em; }
+.section-landing__state span { display: block; width: 5rem; height: 1px; background: var(--section-accent); }
+
+.section-footer { display: flex; justify-content: space-between; margin: 0 4.2vw; padding: 1.7rem 0 2rem; border-top: 1px solid var(--section-line); color: var(--section-faint); font-size: 0.48rem; letter-spacing: 0.18em; }
+.section-footer p { margin: 0; }
+
+@media (max-width: 640px) {
+  .section-header { min-height: 4.2rem; padding: 0 1rem; }
+  .section-header nav { gap: 0.55rem; font-size: 0.46rem; }
+  .section-header__brand { font-size: 0.62rem; }
+  .section-theme-toggle span { display: none; }
+  .section-landing { min-height: calc(100svh - 4.2rem); padding: 5rem 1.25rem 3rem; }
+  .section-landing h1 { font-size: clamp(5.5rem, 34vw, 8rem); }
+  .section-landing__description { margin-top: 3rem; font-size: 0.76rem; }
+  .section-landing ul { flex-wrap: wrap; gap: 0.8rem 1.4rem; }
+  .section-landing__state { right: 1.25rem; bottom: 3rem; }
+  .section-footer { margin: 0 1rem; font-size: 0.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-site,
+  .section-theme-toggle i::after { transition-duration: 0.01ms !important; }
+}

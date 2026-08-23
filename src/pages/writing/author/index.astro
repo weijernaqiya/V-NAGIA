@@ -1,0 +1,32 @@
+---
+import WritingEditor from '../../../components/writing/WritingEditor.astro';
+import WritingLayout from '../../../layouts/WritingLayout.astro';
+import type { WritingDraft } from '../../../types/writing';
+
+const initialDraft: WritingDraft = {
+  id: 'local-draft-welcome',
+  slug: 'untitled-record',
+  title: '未命名记录',
+  subtitle: '',
+  type: 'ESSAY',
+  status: 'DRAFT',
+  visibility: 'PRIVATE',
+  tags: [],
+  markdown: `## 第一节
+
+从这里开始书写。
+
+> [!FEATURED]
+> 所有文字都先以本地草稿的形式存在。`,
+  updatedAt: new Date(0).toISOString(),
+};
+---
+
+<WritingLayout
+  title="写作台"
+  description="ASYMPTOTE 浏览器本地写作工作区。"
+  sectionLabel="作者"
+  noindex
+>
+  <WritingEditor initialDraft={initialDraft} />
+</WritingLayout>

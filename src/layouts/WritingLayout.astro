@@ -1,0 +1,53 @@
+---
+import SiteLayout from './SiteLayout.astro';
+import WritingHeader from '../components/writing/WritingHeader.astro';
+import '../styles/writing.css';
+
+interface Props {
+  title: string;
+  description: string;
+  sectionLabel?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  sectionLabel,
+  noindex = false,
+} = Astro.props;
+const pageTitle = title === '写作' ? '写作 — ASYMPTOTE' : `${title} — 写作 / ASYMPTOTE`;
+---
+
+<SiteLayout title={pageTitle} description={description} playerVisible themeColor="#11171c">
+  <Fragment slot="head">
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={new URL(Astro.url.pathname, 'https://vnagia.com')} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <script is:inline>
+      // 五个内容板块默认使用深色；在首屏绘制前恢复用户的全局明暗选择。
+      try {
+        const storedTheme = localStorage.getItem('asymptote.section.theme.v1');
+        document.documentElement.dataset.sectionTheme = storedTheme === 'light' ? 'light' : 'dark';
+      } catch {
+        document.documentElement.dataset.sectionTheme = 'dark';
+      }
+    </script>
+  </Fragment>
+
+  <div class="writing-site" data-writing-site data-section-site data-section-theme="dark">
+    <a class="writing-skip-link" href="#writing-main">跳到正文</a>
+    <WritingHeader sectionLabel={sectionLabel} />
+    <main id="writing-main" class="writing-main">
+      <slot />
+    </main>
+    <footer class="writing-footer">
+      <p>ASYMPTOTE <span aria-hidden="true">—</span> 写作档案</p>
+      <p>V. NAGIA · 2026</p>
+    </footer>
+  </div>
+</SiteLayout>
+
+<script src="../scripts/section-theme.ts"></script>

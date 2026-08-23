@@ -1,0 +1,36 @@
+<aside class="writing-tool-panel writing-revisions" data-editor-revisions aria-hidden="true" inert>
+  <header>
+    <div>
+      <p>版本历史</p>
+      <span>本地修订记录</span>
+    </div>
+    <button type="button" data-editor-revisions-close aria-label="关闭版本历史">关闭</button>
+  </header>
+
+  <div class="writing-revisions__create">
+    <label>
+      <span>本次修改说明</span>
+      <input type="text" maxlength="80" placeholder="例如：调整第二节结构" data-editor-revision-note />
+    </label>
+    <button type="button" data-editor-revision-create>保存当前版本</button>
+  </div>
+
+  <p class="writing-tool-panel__status" data-editor-revision-status aria-live="polite">
+    重要保存会形成可恢复的本地版本。
+  </p>
+  <ol class="writing-revisions__list" data-editor-revision-list></ol>
+
+  <section class="writing-revisions__compare" data-editor-revision-compare hidden>
+    <header>
+      <p>版本比较</p>
+      <button type="button" data-editor-revision-compare-close>收起比较</button>
+    </header>
+    <p data-editor-revision-compare-summary></p>
+    <pre data-editor-revision-compare-preview></pre>
+  </section>
+
+  <p class="writing-tool-panel__boundary">
+    修订内容保存在当前浏览器。未来接入账户与服务器后，
+    RevisionRepository 会改为受身份验证的远程实现，编辑器交互无需重写。
+  </p>
+</aside>

@@ -1,0 +1,20 @@
+---
+import type { CreativeSection } from '../../config/sections';
+
+interface Props {
+  section: CreativeSection;
+}
+
+const { section } = Astro.props;
+---
+
+<section class="section-landing">
+  <div class="section-landing__lines" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p class="section-landing__index">创作板块 / {section.index}</p>
+  <h1 lang="zh-CN">{section.name}</h1>
+  <p class="section-landing__description">{section.description}</p>
+  <ul aria-label="内容分类">
+    {section.categories.map((category) => <li>{category}</li>)}
+  </ul>
+  <p class="section-landing__state"><span aria-hidden="true"></span>内容正在整理</p>
+</section>

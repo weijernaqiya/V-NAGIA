@@ -1,0 +1,75 @@
+---
+import MusicArtwork from '../../../components/music/MusicArtwork.astro';
+import { getTrackAlbum, getTrackArtist } from '../../../lib/music/catalog';
+import { parseLrc } from '../../../lib/music/lyrics';
+import { staticMusicRepository } from '../../../lib/music/repositories';
+import MusicLayout from '../../../layouts/MusicLayout.astro';
+import type { CatalogTrack } from '../../../types/music';
+
+export function getStaticPaths() {
+  const catalog = staticMusicRepository.getCatalog();
+  return catalog.tracks.map((track) => ({ params: { slug: track.slug }, props: { track } }));
+}
+
+interface Props { track: CatalogTrack }
+const { track } = Astro.props;
+const catalog = staticMusicRepository.getCatalog();
+const artist = getTrackArtist(catalog, track);
+const album = getTrackAlbum(catalog, track);
+const timedLyrics = track.lyrics?.format === 'lrc' ? parseLrc(track.lyrics.original) : [];
+---
+
+<MusicLayout title={track.title} description={track.note ?? `${track.title} 曲目资料。`}>
+  <article class="music-track-page music-page-shell music-reveal">
+    <header class="music-track-page__hero">
+      <MusicArtwork title={track.title} artwork={track.artwork ?? album?.artwork ?? null} accent={album?.accent} />
+      <div class="music-track-page__identity">
+        <p>曲目 / {track.audio?.format ?? '仅资料'}</p>
+        <h1>{track.title}</h1>
+        {track.subtitle && <p>{track.subtitle}</p>}
+        <h2>{artist ? <a href={`/music/artist/${artist.slug}`}>{artist.name}</a> : '未知艺术家'}</h2>
+        {album && <a class="music-track-page__album" href={`/music/album/${album.slug}`}>{album.title}</a>}
+        <div>
+          <button type="button" data-music-play-track={track.id} disabled={!track.audio}>
+            播放 <b class="music-action-path" aria-hidden="true"></b>
+          </button>
+          <button
+            type="button"
+            data-music-favorite={track.id}
+            data-default-favorite={String(track.favorite)}
+            aria-pressed="false"
+          >收藏</button>
+          <button type="button" data-music-add-queue={track.id} disabled={!track.audio}>加入队列</button>
+        </div>
+      </div>
+      <dl>
+        <div><dt>年份</dt><dd>{track.year ?? '—'}</dd></div>
+        <div><dt>DISC / TRACK</dt><dd>{track.discNumber} / {track.trackNumber ?? '—'}</dd></div>
+        <div><dt>格式</dt><dd>{track.audio?.format ?? '—'}</dd></div>
+        <div><dt>可见性</dt><dd>{track.audio?.visibility === 'public' ? '公开' : track.audio?.visibility === 'private' ? '私人' : '无音频'}</dd></div>
+      </dl>
+    </header>
+
+    <section class="music-track-page__note">
+      <p>档案注释</p>
+      <h2>{track.note ?? '尚未写入这首曲目的个人注释。'}</h2>
+    </section>
+
+    <section class="music-track-page__lyrics" data-music-lyrics data-track-id={track.id}>
+      <header class="music-section-heading">
+        <p>歌词</p>
+        <h2>{track.lyrics ? (track.lyrics.format === 'lrc' ? '时间歌词' : '歌词文本') : '没有歌词'}</h2>
+        <span>{track.lyrics ? '手动导入' : 'NO LYRICS'}</span>
+      </header>
+      {track.lyrics ? (
+        track.lyrics.format === 'lrc' ? (
+          <ol class="music-lyrics-lines">
+            {timedLyrics.map((line) => <li data-lyric-time={line.time}>{line.text || '…'}</li>)}
+          </ol>
+        ) : <div class="music-lyrics-plain">{track.lyrics.original}</div>
+      ) : (
+        <p class="music-lyrics-empty">歌词只接受站点所有者手动导入，不从第三方服务抓取。</p>
+      )}
+    </section>
+  </article>
+</MusicLayout>

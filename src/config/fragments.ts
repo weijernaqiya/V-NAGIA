@@ -13,9 +13,11 @@ export interface FragmentSection {
   titleZh: string;
   description: string;
   href: string;
+  ready: boolean;
   image: string | null;
   imagePosition: string;
   color: string;
+  darkColor: string;
   className: string;
   labelPosition: FragmentLabelPosition;
 }
@@ -29,12 +31,14 @@ export const FRAGMENTS = Object.freeze([
   {
     id: 'writing',
     title: 'WRITING',
-    titleZh: '文字',
+    titleZh: '写作',
     description: '文学 / 小说 / 思考',
     href: '/writing',
+    ready: true,
     image: null,
     imagePosition: 'center',
     color: '#e5eaec',
+    darkColor: '#141b20',
     className: 'fragment-panel--writing',
     labelPosition: 'left-major',
   },
@@ -44,9 +48,11 @@ export const FRAGMENTS = Object.freeze([
     titleZh: '影像',
     description: '摄影 / 绘画 / 视频',
     href: '/image',
+    ready: true,
     image: null,
     imagePosition: 'center',
     color: '#efede8',
+    darkColor: '#1b1d1e',
     className: 'fragment-panel--image',
     labelPosition: 'upper-middle',
   },
@@ -56,9 +62,11 @@ export const FRAGMENTS = Object.freeze([
     titleZh: '电影',
     description: '电影 / 动画 / 影像研究',
     href: '/cinema',
+    ready: true,
     image: null,
     imagePosition: 'center',
     color: '#e7eae9',
+    darkColor: '#161b1f',
     className: 'fragment-panel--cinema',
     labelPosition: 'upper-right',
   },
@@ -66,11 +74,13 @@ export const FRAGMENTS = Object.freeze([
     id: 'music',
     title: 'MUSIC',
     titleZh: '音乐',
-    description: '音乐 / CD / Audio',
+    description: '音乐 / 唱片 / 声音',
     href: '/music',
+    ready: true,
     image: null,
     imagePosition: 'center',
     color: '#dfe7eb',
+    darkColor: '#111a20',
     className: 'fragment-panel--music',
     labelPosition: 'lower-middle',
   },
@@ -78,11 +88,13 @@ export const FRAGMENTS = Object.freeze([
     id: 'games',
     title: 'GAMES',
     titleZh: '游戏',
-    description: '游戏 / Galgame / 互动媒体',
+    description: '游戏 / 视觉小说 / 互动媒体',
     href: '/games',
+    ready: true,
     image: null,
     imagePosition: 'center',
     color: '#ece8e1',
+    darkColor: '#1d1b1a',
     className: 'fragment-panel--games',
     labelPosition: 'lower-right',
   },

@@ -7,6 +7,12 @@ import { MUSIC_TRACKS } from '../../data/music';
 import PlayerCollapsed from './PlayerCollapsed.astro';
 import PlayerExpanded from './PlayerExpanded.astro';
 
+interface Props {
+  initiallyVisible?: boolean;
+}
+
+const { initiallyVisible = false } = Astro.props;
+
 const publicDirectory = fileURLToPath(new URL('../../../public/', import.meta.url));
 const tracks = MUSIC_TRACKS.map((track) => ({
   ...track,
@@ -25,7 +31,7 @@ const serializedTracks = JSON.stringify(tracks).replaceAll('<', '\\u003c');
 <asymptote-music-player
   class="music-player"
   data-player-state="idle"
-  data-visible="false"
+  data-visible={String(initiallyVisible)}
   data-expanded="false"
   data-queue-open="false"
   style={getMusicPlayerStyle()}

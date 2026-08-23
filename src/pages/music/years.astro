@@ -1,0 +1,19 @@
+---
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import { getCatalogYears } from '../../lib/music/catalog';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+const catalog = staticMusicRepository.getCatalog();
+const years = getCatalogYears(catalog);
+---
+
+<MusicLayout title="年份" description="ASYMPTOTE 音乐档案时间轴。">
+  <div class="music-page-shell">
+    <MusicPageHeading index="11 / YEARS" title="年份" description="声音沿时间排列，保留它被发行与被重新听见的距离。" count={`${years.length} 个年份`} />
+    <ol class="music-year-line">
+      {years.map((year) => (
+        <li><time>{year}</time><i aria-hidden="true"></i><span>{catalog.tracks.filter((track) => track.year === year).length} 首曲目</span></li>
+      ))}
+    </ol>
+  </div>
+</MusicLayout>

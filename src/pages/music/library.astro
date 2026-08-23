@@ -1,0 +1,66 @@
+---
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicTrackList from '../../components/music/MusicTrackList.astro';
+import { getCatalogGenres } from '../../lib/music/catalog';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+const genres = getCatalogGenres(catalog);
+const formats = [...new Set(catalog.tracks.flatMap((track) => track.audio?.format ? [track.audio.format] : []))];
+---
+
+<MusicLayout title="资料库" description="浏览、搜索和筛选 ASYMPTOTE 私人音乐资料库。">
+  <div class="music-page-shell" data-music-library data-library-view="archive">
+    <MusicPageHeading
+      index="01 / MUSIC LIBRARY"
+      title="资料库"
+      description="声音文件与元数据的统一入口。浏览不会改变正在运行的播放队列。"
+      count={`${catalog.tracks.length} 首曲目`}
+    />
+
+    <div class="music-library-view" role="group" aria-label="资料库显示密度">
+      <span>VIEW</span>
+      <button type="button" data-music-library-view="archive" aria-pressed="true">档案</button>
+      <button type="button" data-music-library-view="compact" aria-pressed="false">紧凑</button>
+      <i aria-hidden="true"></i>
+    </div>
+
+    <form class="music-library-toolbar" data-music-filter-form role="search">
+      <label class="music-library-toolbar__search">
+        <span>搜索曲目、艺人或专辑</span>
+        <input type="search" data-music-filter-search autocomplete="off" placeholder="输入关键词" />
+      </label>
+      <label>
+        <span>流派</span>
+        <select data-music-filter-genre>
+          <option value="">全部流派</option>
+          {genres.map((genre) => <option value={genre}>{genre}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>格式</span>
+        <select data-music-filter-format>
+          <option value="">全部格式</option>
+          {formats.map((format) => <option value={format}>{format}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>排序</span>
+        <select data-music-filter-sort>
+          <option value="added-desc">最近加入</option>
+          <option value="title-asc">标题</option>
+          <option value="artist-asc">艺人</option>
+          <option value="year-desc">年份</option>
+        </select>
+      </label>
+      <label class="music-library-toolbar__favorite">
+        <input type="checkbox" data-music-filter-favorite />
+        <span>只看收藏</span>
+      </label>
+      <p><span data-music-filter-count>{catalog.tracks.length}</span> 条结果</p>
+    </form>
+
+    <MusicTrackList tracks={catalog.tracks} catalog={catalog} filterable emptyLabel="没有符合当前筛选条件的曲目。" />
+  </div>
+</MusicLayout>

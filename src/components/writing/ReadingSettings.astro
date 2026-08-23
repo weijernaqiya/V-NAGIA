@@ -1,0 +1,35 @@
+<aside class="reading-settings" data-reading-settings>
+  <button
+    class="reading-settings__toggle"
+    type="button"
+    data-reading-settings-toggle
+    aria-expanded="false"
+    aria-label="打开阅读设置"
+  >
+    字
+  </button>
+
+  <div class="reading-settings__panel" data-reading-settings-panel aria-hidden="true">
+    <header>
+      <div><p>阅读</p><span>阅读设置</span></div>
+      <button type="button" data-reading-settings-close aria-label="关闭阅读设置">收起</button>
+    </header>
+
+    <label>
+      <span>字号</span>
+      <input type="range" min="16" max="24" step="1" value="19" data-reading-font-size />
+    </label>
+    <label>
+      <span>宽度</span>
+      <input type="range" min="620" max="820" step="20" value="720" data-reading-width />
+    </label>
+    <label>
+      <span>行距</span>
+      <input type="range" min="1.7" max="2.2" step="0.05" value="1.95" data-reading-line-height />
+    </label>
+    <label>
+      <span>字距</span>
+      <input type="range" min="0" max="0.12" step="0.01" value="0.04" data-reading-letter-spacing />
+    </label>
+  </div>
+</aside>

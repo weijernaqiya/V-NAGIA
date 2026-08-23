@@ -1,0 +1,139 @@
+---
+import { getTrackAlbum, getTrackArtist } from '../../lib/music/catalog';
+import type { MusicCatalog } from '../../types/music';
+import MusicAlbumCard from './MusicAlbumCard.astro';
+import MusicArtwork from './MusicArtwork.astro';
+import MusicEmptyState from './MusicEmptyState.astro';
+import MusicPlaylistCard from './MusicPlaylistCard.astro';
+import MusicTrackList from './MusicTrackList.astro';
+
+interface Props { catalog: MusicCatalog }
+const { catalog } = Astro.props;
+const leadTrack = catalog.tracks.find((track) => track.id === 'title-theme') ?? catalog.tracks[0];
+const leadArtist = leadTrack ? getTrackArtist(catalog, leadTrack) : null;
+const leadAlbum = leadTrack ? getTrackAlbum(catalog, leadTrack) : null;
+---
+
+<section class="music-home-hero music-reveal">
+  <div class="music-home-hero__signal" aria-hidden="true">
+    {Array.from({ length: 21 }).map((_, index) => <i style={`--signal-index: ${index}`}></i>)}
+  </div>
+  <p class="music-home-hero__index">创作板块 / 04</p>
+  <h1>MUSIC</h1>
+  <p class="music-home-hero__zh">音乐</p>
+  <div class="music-home-hero__statement">
+    <p>进入一段正在运行的记忆。</p>
+    <span>播放器 · 私人唱片馆 · 声音档案</span>
+  </div>
+  <a class="music-home-hero__enter" href="#music-now-playing">
+    开始聆听 <b class="music-action-path" aria-hidden="true"></b>
+  </a>
+  <span class="music-home-hero__limit" aria-hidden="true"><i></i></span>
+</section>
+
+<nav class="music-home-nav" aria-label="音乐快速入口">
+  <a href="/music/library"><span>01</span>资料库</a>
+  <a href="/music/albums"><span>02</span>专辑</a>
+  <a href="/music/artists"><span>03</span>艺人</a>
+  <a href="/music/playlists"><span>04</span>歌单</a>
+  <a href="/music/cd"><span>05</span>CD 档案</a>
+  <a href="/music/history"><span>06</span>聆听历史</a>
+</nav>
+
+{leadTrack && (
+  <section id="music-now-playing" class="music-now-playing music-home-section">
+    <header class="music-section-heading">
+      <p>01 / 当前声音</p>
+      <h2>现在播放</h2>
+      <span>播放器将在所有页面持续运行</span>
+    </header>
+    <div class="music-now-playing__composition">
+      <MusicArtwork
+        title={leadTrack.title}
+        artwork={leadTrack.artwork ?? leadAlbum?.artwork ?? null}
+        accent={leadAlbum?.accent}
+        href={`/music/track/${leadTrack.slug}`}
+        class="music-now-playing__artwork"
+      />
+      <div class="music-now-playing__copy">
+        <p>{leadAlbum?.edition ?? '站点音轨'}</p>
+        <h2>{leadTrack.title}</h2>
+        <h3>{leadArtist?.name ?? '未知艺术家'}</h3>
+        <p>{leadTrack.note}</p>
+        <div>
+          <button
+            type="button"
+            data-music-play-track={leadTrack.id}
+            data-queue-source="title"
+          >播放 <b class="music-action-path" aria-hidden="true"></b></button>
+          <a href={`/music/track/${leadTrack.slug}`}>查看资料</a>
+        </div>
+      </div>
+      <div class="music-now-playing__telemetry" aria-label="曲目资料">
+        <span><b>格式</b>{leadTrack.audio?.format ?? '—'}</span>
+        <span><b>年份</b>{leadTrack.year ?? '—'}</span>
+        <span><b>来源</b>{leadTrack.audio?.visibility === 'public' ? '公开' : '私人'}</span>
+      </div>
+    </div>
+  </section>
+)}
+
+<section class="music-home-section music-home-albums">
+  <header class="music-section-heading">
+    <p>02 / 唱片架</p>
+    <h2>专辑与档案</h2>
+    <a href="/music/albums">查看全部 <b class="music-action-path" aria-hidden="true"></b></a>
+  </header>
+  <div class="music-album-grid">
+    {catalog.albums.map((album, index) => <MusicAlbumCard album={album} catalog={catalog} index={index} />)}
+  </div>
+</section>
+
+<section class="music-home-section music-home-library">
+  <header class="music-section-heading">
+    <p>03 / 最近加入</p>
+    <h2>曲目资料库</h2>
+    <a href="/music/library">进入资料库 <b class="music-action-path" aria-hidden="true"></b></a>
+  </header>
+  <MusicTrackList tracks={catalog.tracks.slice(0, 5)} catalog={catalog} compact />
+</section>
+
+<section class="music-home-section music-home-playlists">
+  <header class="music-section-heading">
+    <p>04 / 播放路径</p>
+    <h2>歌单</h2>
+    <a href="/music/playlists">管理歌单 <b class="music-action-path" aria-hidden="true"></b></a>
+  </header>
+  {catalog.playlists.length > 0
+    ? catalog.playlists.map((playlist, index) => (
+      <MusicPlaylistCard playlist={playlist} catalog={catalog} index={index} />
+    ))
+    : <MusicEmptyState title="尚无歌单" description="在资料库中选择曲目，建立第一条播放路径。" />}
+</section>
+
+<section class="music-home-section music-home-archive">
+  <header class="music-section-heading">
+    <p>05 / 实体档案</p>
+    <h2>CD 档案</h2>
+    <a href="/music/cd">打开档案柜 <b class="music-action-path" aria-hidden="true"></b></a>
+  </header>
+  <MusicEmptyState
+    title="档案柜等待第一张唱片"
+    description="实体版本、编号、侧标、抓轨状态与照片将在这里被独立保存，不与普通专辑混为一体。"
+    href="/music/cd"
+    action="查看 CD 结构"
+  />
+</section>
+
+<section class="music-home-section music-home-history">
+  <header class="music-section-heading">
+    <p>06 / 时间记录</p>
+    <h2>最近聆听</h2>
+    <a href="/music/history">完整历史 <b class="music-action-path" aria-hidden="true"></b></a>
+  </header>
+  <ol class="music-history-list" data-music-history-list data-limit="4"></ol>
+  <MusicEmptyState
+    title="聆听尚未留下记录"
+    description="首次播放曲目后，这里会在当前浏览器中生成时间线。"
+  />
+</section>

@@ -17,6 +17,7 @@ import '../styles/title-screen.css';
   <script slot="head" is:inline>
     document.documentElement.classList.add('js');
     window.setTimeout(() => {
+      if (window.location.pathname !== '/') return;
       const screen = document.querySelector('asymptote-title-screen');
       if (!screen?.hasAttribute('data-enhanced')) {
         document.documentElement.classList.remove('js');

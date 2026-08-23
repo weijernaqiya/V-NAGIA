@@ -1,0 +1,44 @@
+---
+import SectionThemeToggle from '../section/SectionThemeToggle.astro';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const links = [
+  { href: '/music', label: '音乐' },
+  { href: '/music/library', label: '资料库' },
+  { href: '/music/albums', label: '专辑' },
+  { href: '/music/artists', label: '艺人' },
+  { href: '/music/playlists', label: '歌单' },
+  { href: '/music/cd', label: 'CD 档案' },
+  { href: '/music/history', label: '历史' },
+];
+
+const isCurrent = (href: string) => href === '/music'
+  ? currentPath === href
+  : currentPath.startsWith(href);
+---
+
+<header class="music-header">
+  <div class="music-header__identity">
+    <a class="music-header__brand" href="/">ASYMPTOTE</a>
+    <span aria-hidden="true">/</span>
+    <a class="music-header__section" href="/music">音乐</a>
+  </div>
+
+  <nav class="music-header__nav" aria-label="音乐板块导航">
+    {links.map((link) => (
+      <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+        {link.label}
+      </a>
+    ))}
+  </nav>
+
+  <div class="music-header__utilities">
+    <a href="/music/search" aria-label="搜索音乐资料库">搜索</a>
+    <a class="music-header__author" href="/music/author">管理</a>
+    <SectionThemeToggle />
+  </div>
+</header>

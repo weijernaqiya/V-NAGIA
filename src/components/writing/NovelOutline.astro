@@ -1,0 +1,75 @@
+---
+import type { Novel } from '../../types/writing';
+import { PUBLICATION_STATUS_LABELS } from '../../data/writing';
+
+interface Props {
+  novel: Novel;
+  authorMode?: boolean;
+}
+
+const { novel, authorMode = false } = Astro.props;
+const visible = (status: string, visibility: string) => authorMode
+  || (status === 'PUBLISHED' && visibility === 'PUBLIC');
+---
+
+<section class="novel-outline" aria-labelledby="novel-contents-title">
+  <header class="novel-outline__header">
+    <p>目录</p>
+    <h2 id="novel-contents-title">章节目录</h2>
+  </header>
+
+  {novel.volumes.map((volume) => (
+    <section class="novel-volume">
+      <header>
+        <p>{volume.titleEn}</p>
+        <h3>{volume.title}</h3>
+      </header>
+
+      <ol class="novel-chapter-list">
+        {volume.chapters.filter((chapter) => visible(chapter.status, chapter.visibility)).map((chapter) => (
+          <li>
+            {chapter.status === 'PUBLISHED' && chapter.visibility === 'PUBLIC' ? (
+              <a href={`/writing/fiction/${novel.slug}/${chapter.slug}`}>
+                <span class="novel-chapter-list__number">{String(chapter.number).padStart(2, '0')}</span>
+                <span class="novel-chapter-list__identity">
+                  <strong>{chapter.titleEn ?? chapter.title}</strong>
+                  <span>{chapter.title}</span>
+                </span>
+                <span class="novel-chapter-list__length">{chapter.wordCount.toLocaleString('zh-CN')} 字 / 约 {chapter.readingTime} 分钟</span>
+                <span class="novel-chapter-list__status">阅读 <b aria-hidden="true">→</b></span>
+              </a>
+            ) : (
+              <div class="novel-chapter-list__draft">
+                <span class="novel-chapter-list__number">{String(chapter.number).padStart(2, '0')}</span>
+                <span class="novel-chapter-list__identity">
+                  <strong>{chapter.titleEn ?? chapter.title}</strong>
+                  <span>{chapter.title}</span>
+                </span>
+                <span class="novel-chapter-list__status">{PUBLICATION_STATUS_LABELS[chapter.status]}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      {volume.parts.map((part) => (
+        <section class="novel-part">
+          <h4>{part.titleEn ?? part.title} <span>{part.title}</span></h4>
+          <ol class="novel-chapter-list">
+            {part.chapters.filter((chapter) => visible(chapter.status, chapter.visibility)).map((chapter) => (
+              <li><a href={`/writing/fiction/${novel.slug}/${chapter.slug}`}>{chapter.label} / {chapter.title}</a></li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </section>
+  ))}
+
+  {novel.chapters.length > 0 && (
+    <ol class="novel-chapter-list">
+      {novel.chapters.filter((chapter) => visible(chapter.status, chapter.visibility)).map((chapter) => (
+        <li><a href={`/writing/fiction/${novel.slug}/${chapter.slug}`}>{chapter.label} / {chapter.title}</a></li>
+      ))}
+    </ol>
+  )}
+</section>

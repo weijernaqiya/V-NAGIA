@@ -1,0 +1,91 @@
+---
+import { getTrackAlbum, getTrackArtist } from '../../lib/music/catalog';
+import type { MusicCatalog } from '../../types/music';
+
+interface Props {
+  catalog: MusicCatalog;
+}
+
+const { catalog } = Astro.props;
+---
+
+<!--
+  本地歌单只写入当前浏览器的 localStorage，不会自动上传到网站。
+  这样公开页面保持纯静态，也为以后接入账号或远端资料库保留替换边界。
+-->
+<section class="music-local-playlists" data-music-local-playlists aria-labelledby="local-playlist-heading">
+  <header class="music-local-playlists__heading">
+    <div>
+      <p>LOCAL SEQUENCE / BROWSER ARCHIVE</p>
+      <h2 id="local-playlist-heading">本地歌单</h2>
+    </div>
+    <p>在这台设备上编排声音路径；可以播放、改名、删除或导出为 JSON 档案。</p>
+  </header>
+
+  <div class="music-local-playlists__workspace">
+    <aside class="music-local-playlists__index" aria-label="本地歌单索引">
+      <form data-local-playlist-create>
+        <label>
+          <span>新歌单名称</span>
+          <input name="title" maxlength="48" autocomplete="off" placeholder="例如：凌晨之后" required />
+        </label>
+        <button type="submit"><span aria-hidden="true">＋</span> 建立路径</button>
+      </form>
+      <ol data-local-playlist-list></ol>
+      <p data-local-playlist-index-empty>还没有本地歌单。</p>
+    </aside>
+
+    <div class="music-local-playlists__empty" data-local-playlist-empty>
+      <span aria-hidden="true"><i></i><i></i><i></i></span>
+      <div>
+        <h3>选择一条声音路径</h3>
+        <p>或在左侧建立新的歌单。所有改动仅保存在当前浏览器。</p>
+      </div>
+    </div>
+
+    <form class="music-local-playlists__editor" data-local-playlist-editor hidden>
+      <div class="music-local-playlists__identity">
+        <label>
+          <span>名称</span>
+          <input name="title" maxlength="48" required />
+        </label>
+        <label>
+          <span>说明</span>
+          <textarea name="description" rows="2" maxlength="180" placeholder="这条路径为什么存在？"></textarea>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>曲目顺序</legend>
+        <p>按勾选次序加入歌单；数字代表当前播放顺序。</p>
+        <ol>
+          {catalog.tracks.map((track) => {
+            const artist = getTrackArtist(catalog, track);
+            const album = getTrackAlbum(catalog, track);
+            return (
+              <li>
+                <label>
+                  <input type="checkbox" name="track" value={track.id} />
+                  <span data-local-playlist-order aria-hidden="true">—</span>
+                  <span>
+                    <strong>{track.title}</strong>
+                    <small>{artist?.name ?? '未知艺术家'} · {album?.title ?? '单曲'}</small>
+                  </span>
+                  <em>{track.audio ? track.audio.format : '仅资料'}</em>
+                </label>
+              </li>
+            );
+          })}
+        </ol>
+      </fieldset>
+
+      <footer>
+        <button type="submit">保存更改</button>
+        <button type="button" data-local-playlist-play>播放路径</button>
+        <button type="button" data-local-playlist-export>导出档案</button>
+        <button type="button" data-local-playlist-delete>删除</button>
+      </footer>
+    </form>
+  </div>
+  <p class="music-local-playlists__status" data-local-playlist-status role="status" aria-live="polite"></p>
+</section>

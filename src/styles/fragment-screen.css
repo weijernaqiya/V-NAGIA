@@ -9,6 +9,11 @@
   visibility: hidden;
   pointer-events: none;
   outline: none;
+  background: #10161a;
+  transition: background-color 360ms ease;
+}
+
+.title-screen[data-fragment-theme="light"] .fragment-screen {
   background: #f4f5f4;
 }
 
@@ -30,6 +35,7 @@
 }
 
 .fragment-panel {
+  --fragment-color: var(--fragment-color-dark);
   position: absolute;
   inset: -1px;
   display: block;
@@ -51,6 +57,10 @@
     transform var(--duration-fragment-focus) cubic-bezier(0.2, 0.72, 0.28, 1),
     filter var(--duration-fragment-focus) cubic-bezier(0.22, 0.68, 0.28, 1);
   -webkit-tap-highlight-color: transparent;
+}
+
+.title-screen[data-fragment-theme="light"] .fragment-panel {
+  --fragment-color: var(--fragment-color-light);
 }
 
 .fragment-panel::after {
@@ -139,22 +149,18 @@
     transform var(--duration-fragment-focus) var(--fragment-focus-easing);
 }
 
+.title-screen[data-fragment-theme="dark"] .fragment-panel__label {
+  color: #c6ced1;
+}
+
 .fragment-panel__title {
-  font-family: Didot, "Bodoni MT", "Baskerville Display PT", Baskerville, "Times New Roman", serif;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
   font-size: clamp(0.7rem, 0.92vw, 1rem);
   font-weight: 400;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.5em;
   line-height: 1;
   white-space: nowrap;
   transition: letter-spacing var(--duration-fragment-focus) var(--fragment-focus-easing);
-}
-
-.fragment-panel__title-zh {
-  font-family: "Songti SC", "STSong", "SimSun", serif;
-  font-size: clamp(0.46rem, 0.54vw, 0.58rem);
-  letter-spacing: 0.24em;
-  line-height: 1;
-  opacity: 0.82;
 }
 
 .fragment-panel__description {
@@ -272,6 +278,11 @@
   transform: translate3d(0, 2px, 0);
 }
 
+.title-screen[data-fragment-theme="dark"][data-screen-state="fragments"][data-focused-fragment]
+  .fragment-panel__label {
+  color: #9ca8ad;
+}
+
 .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__label,
 .title-screen[data-focused-fragment="image"] .fragment-panel--image .fragment-panel__label,
 .title-screen[data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__label,
@@ -281,6 +292,14 @@
   color: #30393f;
   opacity: 0.94;
   transform: translate3d(0, 0, 0);
+}
+
+.title-screen[data-fragment-theme="dark"][data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__label,
+.title-screen[data-fragment-theme="dark"][data-focused-fragment="image"] .fragment-panel--image .fragment-panel__label,
+.title-screen[data-fragment-theme="dark"][data-focused-fragment="cinema"] .fragment-panel--cinema .fragment-panel__label,
+.title-screen[data-fragment-theme="dark"][data-focused-fragment="music"] .fragment-panel--music .fragment-panel__label,
+.title-screen[data-fragment-theme="dark"][data-focused-fragment="games"] .fragment-panel--games .fragment-panel__label {
+  color: #edf0ef;
 }
 
 .title-screen[data-focused-fragment="writing"] .fragment-panel--writing .fragment-panel__title,
@@ -329,6 +348,84 @@
     transform 520ms cubic-bezier(0.22, 0.68, 0.28, 1);
 }
 
+.fragment-screen__theme {
+  position: absolute;
+  z-index: 5;
+  top: max(4.2rem, calc(env(safe-area-inset-top) + 3.6rem));
+  right: max(1.5rem, calc(env(safe-area-inset-right) + 0.8rem));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #b3bdc1;
+  font-size: 0.46rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: color 220ms ease, opacity 320ms ease;
+}
+
+.fragment-screen__theme i {
+  position: relative;
+  display: block;
+  width: 2.9rem;
+  height: 0.82rem;
+  border-right: 1px solid currentColor;
+  opacity: 0.72;
+}
+
+.fragment-screen__theme i::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(100% - 0.48rem);
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: translateY(-50%);
+  transition: width 320ms cubic-bezier(0.22, 0.68, 0.28, 1);
+}
+
+.fragment-screen__theme i::after {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0.34rem;
+  height: 0.34rem;
+  border: 1px solid currentColor;
+  background: #10161a;
+  content: "";
+  transform: translate3d(1.95rem, -50%, 0) rotate(45deg);
+  transition: background-color 320ms ease, transform 320ms cubic-bezier(0.22, 0.68, 0.28, 1);
+}
+
+.fragment-screen__theme[aria-pressed="false"] i::after {
+  background: #f4f5f4;
+  transform: translate3d(0.18rem, -50%, 0) rotate(45deg);
+}
+
+.fragment-screen__theme:hover i::before,
+.fragment-screen__theme:focus-visible i::before {
+  width: calc(100% - 0.3rem);
+}
+
+.title-screen[data-screen-state="fragments"] .fragment-screen__theme {
+  opacity: 0.58;
+  pointer-events: auto;
+}
+
+.title-screen[data-fragment-theme="light"] .fragment-screen__theme {
+  color: #5d666b;
+}
+
+.fragment-screen__theme:hover,
+.fragment-screen__theme:focus-visible {
+  opacity: 0.95 !important;
+}
+
 .title-screen[data-screen-state="fragments"] .fragment-screen__back {
   opacity: 0.52;
   pointer-events: auto;
@@ -339,6 +436,15 @@
 .fragment-screen__back:focus-visible {
   color: #30383d;
   opacity: 0.9;
+}
+
+.title-screen[data-fragment-theme="dark"] .fragment-screen__back {
+  color: #b3bdc1;
+}
+
+.title-screen[data-fragment-theme="dark"] .fragment-screen__back:hover,
+.title-screen[data-fragment-theme="dark"] .fragment-screen__back:focus-visible {
+  color: #eef1f0;
 }
 
 .fragment-screen__back:focus-visible {
@@ -382,11 +488,6 @@
     letter-spacing: 0.34em;
   }
 
-  .fragment-panel__title-zh {
-    font-size: 0.45rem;
-    letter-spacing: 0.2em;
-  }
-
   .fragment-panel__description {
     font-size: 0.34rem;
     letter-spacing: 0.08em;
@@ -423,6 +524,15 @@
     top: max(0.65rem, calc(env(safe-area-inset-top) + 0.3rem));
     right: max(0.75rem, calc(env(safe-area-inset-right) + 0.35rem));
   }
+
+  .fragment-screen__theme {
+    top: max(3.4rem, calc(env(safe-area-inset-top) + 2.9rem));
+    right: max(0.75rem, calc(env(safe-area-inset-right) + 0.35rem));
+  }
+
+  .fragment-screen__theme span {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -441,6 +551,11 @@
   .fragment-screen__back {
     transform: none;
     transition-duration: 180ms;
+  }
+
+  .fragment-screen__theme,
+  .fragment-screen__theme i::after {
+    transition-duration: 0.01ms;
   }
 
   .fragment-panel__visual,

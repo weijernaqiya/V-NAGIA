@@ -1,0 +1,20 @@
+---
+interface Props {
+  index: string;
+  title: string;
+  description: string;
+  count?: string;
+}
+
+const { index, title, description, count } = Astro.props;
+---
+
+<header class="music-page-heading music-reveal">
+  <p>{index}</p>
+  <h1>{title}</h1>
+  <div>
+    <p>{description}</p>
+    {count && <span>{count}</span>}
+  </div>
+  <span class="music-approach-line" aria-hidden="true"><i></i></span>
+</header>

@@ -1,0 +1,41 @@
+---
+import type { Novel } from '../../types/writing';
+import { NOVEL_STATUS_LABELS, formatWritingDate, getPublicNovelChapters } from '../../data/writing';
+import { getNovelWordCount } from '../../lib/writing/repositories';
+
+interface Props {
+  novel: Novel;
+}
+
+const { novel } = Astro.props;
+const chapters = getPublicNovelChapters(novel);
+---
+
+<section class="writing-featured" aria-labelledby="featured-title">
+  <div class="writing-featured__eyebrow">
+    <span>主要作品</span>
+    <span>作品编号 / 001</span>
+  </div>
+
+  <a class="writing-featured__entry" href={`/writing/fiction/${novel.slug}`}>
+    <span class="writing-featured__field" aria-hidden="true">
+      <i></i><i></i><i></i>
+    </span>
+
+    <span class="writing-featured__identity">
+      <span class="writing-featured__kind">长篇小说</span>
+      <span id="featured-title" class="writing-featured__title-en">{novel.titleEn}</span>
+      <span class="writing-featured__title-zh" lang="zh-CN">{novel.title}</span>
+      <span class="writing-featured__summary">{novel.summary}</span>
+    </span>
+
+    <span class="writing-featured__meta">
+      <span>{NOVEL_STATUS_LABELS[novel.status]}</span>
+      <span>{chapters.length.toString().padStart(2, '0')} 章</span>
+      <span>{getNovelWordCount(novel).toLocaleString('zh-CN')} 字</span>
+      <span>更新于 {formatWritingDate(novel.updatedAt)}</span>
+    </span>
+
+    <span class="writing-featured__enter">进入作品 <b class="writing-action-path" aria-hidden="true"></b></span>
+  </a>
+</section>

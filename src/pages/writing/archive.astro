@@ -1,0 +1,73 @@
+---
+import { NOVELS, WRITING_TYPE_LABELS, formatWritingDate, getPublicWritingArticles, getWritingContentHref } from '../../data/writing';
+import WritingSignal from '../../components/writing/WritingSignal.astro';
+import WritingLayout from '../../layouts/WritingLayout.astro';
+
+const records = [
+  ...NOVELS.map((novel) => ({
+    id: novel.id,
+    type: 'FICTION',
+    title: novel.title,
+    titleEn: novel.titleEn,
+    date: novel.updatedAt,
+    tags: novel.tags,
+    href: `/writing/fiction/${novel.slug}`,
+  })),
+  ...getPublicWritingArticles().map((article) => ({
+    id: article.id,
+    type: article.type,
+    title: article.title,
+    titleEn: article.titleEn ?? article.title,
+    date: article.publishedAt ?? article.updatedAt,
+    tags: article.tags,
+    href: getWritingContentHref(article),
+  })),
+].sort((left, right) => right.date.localeCompare(left.date));
+const types = [...new Set(records.map((record) => record.type))];
+const getTypeLabel = (type: string) => WRITING_TYPE_LABELS[
+  type as keyof typeof WRITING_TYPE_LABELS
+] ?? type;
+const countType = (type: string) => records.filter((record) => record.type === type).length;
+---
+
+<WritingLayout title="归档" description="ASYMPTOTE 写作作品归档。" sectionLabel="归档">
+  <section class="writing-archive writing-reveal" data-writing-archive>
+    <header>
+      <p>全部记录 / 2026 —</p>
+      <h1>归档</h1>
+      <div class="writing-page-heading__aside">
+        <span>作品归档</span>
+        <WritingSignal label="时间留下坐标" compact />
+      </div>
+    </header>
+
+    <div class="writing-archive__filters" aria-label="筛选归档">
+      <button type="button" data-archive-filter="ALL" aria-pressed="true"><span>全部</span><small>{String(records.length).padStart(2, '0')}</small></button>
+      {types.map((type) => (
+        <button type="button" data-archive-filter={type} aria-pressed="false">
+          <span>{getTypeLabel(type)}</span><small>{String(countType(type)).padStart(2, '0')}</small>
+        </button>
+      ))}
+    </div>
+    <p class="writing-archive__status" data-archive-status aria-live="polite">
+      当前显示 {String(records.length).padStart(2, '0')} 条记录
+    </p>
+
+    <ol class="writing-archive__list">
+      {records.map((record, index) => (
+        <li data-archive-record={record.type}>
+          <a href={record.href}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <small>{getTypeLabel(record.type)}</small>
+            <strong>{record.titleEn}</strong>
+            <em>{record.title}</em>
+            <time datetime={record.date}>{formatWritingDate(record.date)}</time>
+            <b>{record.tags.join(' / ')}</b>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</WritingLayout>
+
+<script src="../../scripts/writing-archive.ts"></script>

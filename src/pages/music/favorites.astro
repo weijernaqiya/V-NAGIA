@@ -1,0 +1,21 @@
+---
+import MusicEmptyState from '../../components/music/MusicEmptyState.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import MusicTrackList from '../../components/music/MusicTrackList.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="收藏" description="当前浏览器中收藏的 ASYMPTOTE 音乐条目。">
+  <div class="music-page-shell" data-music-favorites-page>
+    <MusicPageHeading
+      index="05 / FAVORITES"
+      title="收藏"
+      description="收藏状态保存在当前浏览器中；音乐资料与原始文件仍由你拥有。"
+    />
+    <MusicTrackList tracks={catalog.tracks} catalog={catalog} compact emptyLabel="尚未收藏任何曲目。" />
+    <MusicEmptyState title="尚无收藏" description="在资料库或播放器旁按下菱形标记，曲目会出现在这里。" />
+  </div>
+</MusicLayout>

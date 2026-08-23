@@ -1,0 +1,27 @@
+---
+import type { TableOfContentsEntry } from '../../lib/writing/markdown';
+
+interface Props {
+  entries: readonly TableOfContentsEntry[];
+}
+
+const { entries } = Astro.props;
+---
+
+{entries.length > 0 && (
+  <aside class="writing-toc" data-writing-toc aria-label="文章目录">
+    <button class="writing-toc__toggle" type="button" data-writing-toc-toggle aria-expanded="false">
+      目录
+    </button>
+    <nav class="writing-toc__nav" data-writing-toc-panel>
+      <p>目录</p>
+      <ol>
+        {entries.map((entry) => (
+          <li class:list={[entry.level === 3 && 'writing-toc__subentry']}>
+            <a href={`#${entry.id}`} data-writing-toc-link={entry.id}>{entry.title}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </aside>
+)}

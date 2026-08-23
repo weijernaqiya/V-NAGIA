@@ -1,0 +1,22 @@
+---
+import MusicAlbumCard from '../../components/music/MusicAlbumCard.astro';
+import MusicPageHeading from '../../components/music/MusicPageHeading.astro';
+import { staticMusicRepository } from '../../lib/music/repositories';
+import MusicLayout from '../../layouts/MusicLayout.astro';
+
+const catalog = staticMusicRepository.getCatalog();
+---
+
+<MusicLayout title="专辑" description="按专辑与版本浏览 ASYMPTOTE 音乐档案。">
+  <div class="music-page-shell">
+    <MusicPageHeading
+      index="02 / ALBUM ARCHIVE"
+      title="专辑"
+      description="封面只是入口；版本、曲序、注释与实际音频在同一个档案中保持关联。"
+      count={`${catalog.albums.length} 张专辑`}
+    />
+    <div class="music-album-grid music-album-grid--archive">
+      {catalog.albums.map((album, index) => <MusicAlbumCard album={album} catalog={catalog} index={index} />)}
+    </div>
+  </div>
+</MusicLayout>

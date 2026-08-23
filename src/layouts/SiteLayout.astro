@@ -6,9 +6,11 @@ import '../styles/music-player.css';
 interface Props {
   title: string;
   description: string;
+  playerVisible?: boolean;
+  themeColor?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, playerVisible = false, themeColor = '#ffffff' } = Astro.props;
 ---
 
 <!doctype html>
@@ -16,7 +18,7 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content={themeColor} />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -27,6 +29,6 @@ const { title, description } = Astro.props;
 
   <body>
     <slot />
-    <MusicPlayer />
+    <MusicPlayer initiallyVisible={playerVisible} />
   </body>
 </html>

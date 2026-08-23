@@ -1,0 +1,66 @@
+---
+import { NOVELS, getPublicNovelChapters, getPublicWritingArticles, getWritingContentHref } from '../../data/writing';
+import WritingSignal from '../../components/writing/WritingSignal.astro';
+import WritingLayout from '../../layouts/WritingLayout.astro';
+
+const searchEntries = [
+  ...NOVELS.map((novel) => ({
+    id: novel.id,
+    type: 'FICTION',
+    title: novel.title,
+    titleEn: novel.titleEn,
+    summary: novel.summary,
+    tags: novel.tags,
+    text: getPublicNovelChapters(novel).map((chapter) => chapter.markdown).join('\n'),
+    href: `/writing/fiction/${novel.slug}`,
+  })),
+  ...NOVELS.flatMap((novel) => getPublicNovelChapters(novel).map((chapter) => ({
+    id: chapter.id,
+    type: 'CHAPTER',
+    title: chapter.title,
+    titleEn: chapter.titleEn ?? chapter.label,
+    summary: chapter.summary,
+    tags: [novel.titleEn, novel.title],
+    text: chapter.markdown,
+    href: `/writing/fiction/${novel.slug}/${chapter.slug}`,
+  }))),
+  ...getPublicWritingArticles().map((article) => ({
+    id: article.id,
+    type: article.type,
+    title: article.title,
+    titleEn: article.titleEn ?? article.title,
+    summary: article.summary,
+    tags: article.tags,
+    text: article.markdown,
+    href: getWritingContentHref(article),
+  })),
+];
+const serializedEntries = JSON.stringify(searchEntries).replaceAll('<', '\\u003c');
+---
+
+<WritingLayout title="搜索" description="搜索 ASYMPTOTE 写作档案。" sectionLabel="搜索">
+  <section class="writing-search writing-reveal" data-writing-search>
+    <header>
+      <p>全文检索 / 索引</p>
+      <h1>搜索</h1>
+      <div class="writing-page-heading__aside">
+        <span>检索作品、章节、标签与正文</span>
+        <WritingSignal label="沿文字寻找坐标" compact />
+      </div>
+    </header>
+
+    <form class="writing-search__form" role="search" data-writing-search-form>
+      <label for="writing-search-query">搜索档案</label>
+      <div>
+        <input id="writing-search-query" name="q" type="search" autocomplete="off" placeholder="输入标题、人物、世界或文字……" data-writing-search-input />
+        <button type="submit">搜索 <span class="writing-action-path" aria-hidden="true"></span></button>
+      </div>
+    </form>
+
+    <p class="writing-search__status" data-writing-search-status aria-live="polite">输入关键词开始检索。</p>
+    <ol class="writing-search__results" data-writing-search-results></ol>
+    <script is:inline type="application/json" data-writing-search-index set:html={serializedEntries}></script>
+  </section>
+</WritingLayout>
+
+<script src="../../scripts/writing-search.ts"></script>
